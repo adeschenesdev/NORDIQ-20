@@ -1,6 +1,6 @@
 # ICQ-20 — Indice Canadien de Qualité
 
-Application web qui affiche, conserve et met à jour automatiquement l'ICQ-20, un indice boursier pancanadien de 19 constituants sélectionnés par secteur GICS selon leur rendement total sur 3 ans.
+Application web locale qui affiche, conserve et met à jour l'ICQ-20, un indice boursier pancanadien de 19 constituants sélectionnés par secteur GICS selon leur rendement total sur 3 ans.
 
 > **⚠ Avertissement** : ceci est un projet personnel éducatif. L'ICQ-20 n'est **pas** un produit financier réglementé et ne constitue **pas** un conseil de placement. Les données proviennent de [yahoo-finance2](https://github.com/gadicc/node-yahoo-finance2), une bibliothèque non officielle, non affiliée à Yahoo Finance. Utilisation à des fins personnelles uniquement, dans le respect des conditions d'utilisation de Yahoo.
 
@@ -12,14 +12,12 @@ Application web qui affiche, conserve et met à jour automatiquement l'ICQ-20, u
 2. [Prérequis](#prérequis)
 3. [Installation](#installation)
 4. [Initialisation (backfill)](#initialisation-backfill)
-5. [Mise à jour manuelle](#mise-à-jour-manuelle)
-6. [Développement local](#développement-local)
+5. [Mise à jour quotidienne](#mise-à-jour-quotidienne)
+6. [Lancer le site](#lancer-le-site)
 7. [Rééquilibrage](#rééquilibrage)
 8. [Modifier les constituants ou les poids](#modifier-les-constituants-ou-les-poids)
-9. [Déploiement sur GitHub Pages](#déploiement-sur-github-pages)
-10. [Mise à jour automatique (GitHub Actions)](#mise-à-jour-automatique-github-actions)
-11. [Méthode de calcul](#méthode-de-calcul)
-12. [Alternatives](#alternatives)
+9. [Méthode de calcul](#méthode-de-calcul)
+10. [Alternatives](#alternatives)
 
 ---
 
@@ -37,7 +35,7 @@ icq20/
 └── web/                    ← application React (Vite + Tailwind + Recharts)
 ```
 
-**Stack** : Node.js 22 · TypeScript · yahoo-finance2 · Vitest · React 18 · Vite · Tailwind CSS v4 · Recharts · GitHub Actions · GitHub Pages
+**Stack** : Node.js 22 · TypeScript · yahoo-finance2 · Vitest · React 18 · Vite · Tailwind CSS v4 · Recharts
 
 ---
 
@@ -52,7 +50,6 @@ icq20/
 ## Installation
 
 ```bash
-git clone <URL-du-dépôt>
 cd icq20
 npm install
 cd web && npm install && cd ..
@@ -83,7 +80,9 @@ Le script :
 
 ---
 
-## Mise à jour manuelle
+## Mise à jour quotidienne
+
+À lancer chaque soir après la clôture de la TSX (16h00 HNE) :
 
 ```bash
 npm run update
@@ -93,7 +92,7 @@ Récupère les cours de clôture du jour, calcule PR et TR, et ajoute une ligne 
 
 ---
 
-## Développement local
+## Lancer le site
 
 ```bash
 cd web
@@ -101,7 +100,7 @@ npm run dev
 # → http://localhost:5173
 ```
 
-Le serveur de développement sert automatiquement `data/data.json` à l'URL `/data.json` via un middleware Vite.
+Le serveur de développement sert automatiquement `data/data.json` via un middleware Vite.
 
 ---
 
@@ -135,7 +134,6 @@ Le script :
       "sector": "Finance",
       "weight": 0.066
     }
-    // ...
   ]
 }
 ```
@@ -144,47 +142,6 @@ Le script :
 - La somme des `weight` doit être égale à **1.0** (100 %)
 - Les tickers doivent utiliser le suffixe `.TO` (TSX) et la notation Yahoo avec tiret (ex. `HPS-A.TO`, `QBR-B.TO`)
 - Après modification, lancez `npm run verify-tickers` pour valider, puis `npm run rebalance`
-
----
-
-## Déploiement sur GitHub Pages
-
-### Étape 1 : Pousser sur GitHub
-
-```bash
-git remote add origin https://github.com/<votre-compte>/<votre-repo>.git
-git push -u origin main
-```
-
-### Étape 2 : Activer GitHub Pages
-
-Dans les paramètres du dépôt → **Pages** → Source : **GitHub Actions**
-
-### Étape 3 : Déclencher le déploiement
-
-Le workflow `deploy.yml` se déclenche automatiquement à chaque push sur `main`. Vous pouvez aussi le lancer manuellement depuis l'onglet **Actions**.
-
-**Note sur `base` Vite** : le fichier `web/vite.config.ts` utilise `base: "./"` ce qui rend le site compatible avec n'importe quel sous-chemin GitHub Pages (ex. `https://compte.github.io/repo/`).
-
----
-
-## Mise à jour automatique (GitHub Actions)
-
-Le workflow `update.yml` s'exécute automatiquement **du lundi au vendredi à 21h30 UTC** :
-- **17h30 HNE** (heure normale de l'Est, novembre–mars)
-- **16h30 HAE** (heure avancée de l'Est, mars–novembre)
-
-La TSX ferme à 16h00 heure locale dans les deux cas. Ce créneau garantit que les cours de clôture sont disponibles quelle que soit la période de l'année.
-
-Si aucune nouvelle donnée n'est disponible (jour férié, week-end), le workflow se termine sans commit.
-
-### Déclenchement manuel
-
-Depuis l'onglet **Actions** → sélectionner le workflow → **Run workflow**.
-
-### Permissions requises
-
-Le workflow a besoin de l'autorisation `contents: write` pour commiter `data.json`. Dans les paramètres du dépôt → **Actions** → **General** → **Workflow permissions** → cocher **Read and write permissions**.
 
 ---
 
@@ -217,7 +174,3 @@ Si Yahoo Finance devient instable ou si vous avez besoin d'une source officielle
 | **Twelve Data** | API REST | Oui (plan gratuit limité) | `:TSX` (ex. `FFH:TSX`) |
 | **Finnhub** | API REST | Oui (plan gratuit) | `TSX:FFH` |
 | **yfinance (Python)** | `yfinance` pip | Non | `FFH.TO` (identique) |
-
-Pour yfinance, un micro-service Python peut exposer un endpoint HTTP que `fetch.ts` consomme à la place de yahoo-finance2.
-
-**Alternative complète (base de données)** : Next.js + PostgreSQL (Supabase ou Neon) + Vercel Cron. Plus robuste pour un usage multi-utilisateurs ou une grande quantité de données, au prix d'une complexité accrue.
