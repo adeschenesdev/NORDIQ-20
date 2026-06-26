@@ -59,6 +59,21 @@ try {
   console.log(`✓ ${today}`);
   console.log(`  ICQ-20 PR : ${result.pr.toFixed(2)}  (${deltaPR >= 0 ? "+" : ""}${deltaPR.toFixed(2)} pts, ${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(2)}%)`);
   console.log(`  ICQ-20 TR : ${result.tr.toFixed(2)}`);
+
+  // Synchronise automatiquement web/dist/data.json si le dossier existe (site IIS)
+  try {
+    const { copyFileSync, existsSync } = await import("fs");
+    const { join, dirname } = await import("path");
+    const { fileURLToPath } = await import("url");
+    const __dirname = dirname(fileURLToPath(import.meta.url));
+    const dist = join(__dirname, "../../web/dist/data.json");
+    if (existsSync(join(__dirname, "../../web/dist"))) {
+      copyFileSync(join(__dirname, "../../data/data.json"), dist);
+      console.log("  ✓ web/dist/data.json synchronisé");
+    }
+  } catch {
+    // Pas bloquant si dist/ n'existe pas encore
+  }
 } catch (err) {
   console.error(`Erreur de calcul : ${err instanceof Error ? err.message : err}`);
   process.exit(1);

@@ -12,7 +12,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "npm run dev --workspace=web",
-    "build": "npm run build --workspace=web"
+    "build": "npm run build --workspace=web",
+    "build:local": "npm run build --workspace=web && tsx src/scripts/sync-dist.ts",
+    "sync-data": "tsx src/scripts/sync-dist.ts"
   },
   "workspaces": [
     "web"
