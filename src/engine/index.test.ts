@@ -20,10 +20,23 @@ const pricesT0: Record<string, number> = {
 };
 
 describe("initializeIndex", () => {
-  it("produit une valeur de 1000 exactement à t0", () => {
+  it("produit une valeur PR = 1000 exactement à t0", () => {
     const config = initializeIndex(constituents, pricesT0, "2022-01-03");
     const value = calculateIndex(config, pricesT0, "2022-01-03");
     expect(value.pr).toBeCloseTo(1000, 6);
+  });
+
+  it("produit une valeur TR = 1000 à t0 quand adjClose = close", () => {
+    const config = initializeIndex(constituents, pricesT0, "2022-01-03", 1000, pricesT0);
+    const value = calculateIndex(config, pricesT0, "2022-01-03", pricesT0);
+    expect(value.tr).toBeCloseTo(1000, 6);
+  });
+
+  it("produit une valeur TR = 1000 à t0 même quand adjClose ≠ close", () => {
+    // adjClose différents des close (dividendes passés intégrés)
+    const adjT0 = { "A.TO": 95, "B.TO": 48, "C.TO": 195 };
+    const config = initializeIndex(constituents, pricesT0, "2022-01-03", 1000, adjT0);
+    const value = calculateIndex(config, pricesT0, "2022-01-03", adjT0);
     expect(value.tr).toBeCloseTo(1000, 6);
   });
 

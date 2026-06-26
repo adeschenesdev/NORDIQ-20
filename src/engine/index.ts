@@ -17,10 +17,11 @@ export interface Constituent {
   weight: number;
 }
 
-/** État figé à un rééquilibrage : quantités et diviseur */
+/** État figé à un rééquilibrage : quantités et diviseurs PR/TR */
 export interface IndexConfig {
   t0: string;
   divisor: number;
+  trDivisor: number;
   units: Record<string, number>;
   weights: Record<string, number>;
 }
@@ -45,9 +46,11 @@ export function initializeIndex(
   pricesT0: Record<string, number>,
   t0: string,
   baseValue = 1000,
+  adjPricesT0?: Record<string, number>,
 ): IndexConfig {
   const units: Record<string, number> = {};
   let portfolioValue = 0;
+  let trPortfolioValue = 0;
 
   for (const c of constituents) {
     const price = pricesT0[c.ticker];
@@ -57,17 +60,22 @@ export function initializeIndex(
     // q_i = w_i / P_i(t0)  →  Σ q_i · P_i(t0) = Σ w_i = 1
     units[c.ticker] = c.weight / price;
     portfolioValue += units[c.ticker] * price;
+    // Pour TR, on utilise les adjClose à t0 (peut différer de close à cause des dividendes historiques)
+    const adjPrice = adjPricesT0?.[c.ticker] ?? price;
+    trPortfolioValue += units[c.ticker] * adjPrice;
   }
 
-  // D = portfolioValue / baseValue  →  ICQ20(t0) = portfolioValue / D = baseValue
+  // D_PR = portfolioValue / baseValue  →  ICQ20_PR(t0) = baseValue
   const divisor = portfolioValue / baseValue;
+  // D_TR est calculé indépendamment pour que ICQ20_TR(t0) = baseValue aussi
+  const trDivisor = trPortfolioValue / baseValue;
 
   const weights: Record<string, number> = {};
   for (const c of constituents) {
     weights[c.ticker] = c.weight;
   }
 
-  return { t0, divisor, units, weights };
+  return { t0, divisor, trDivisor, units, weights };
 }
 
 /**
@@ -117,7 +125,7 @@ export function calculateIndex(
   return {
     date,
     pr: sumPR / config.divisor,
-    tr: sumTR / config.divisor,
+    tr: sumTR / (config.trDivisor ?? config.divisor),
     pricesPR: effectivePR,
     pricesTR: effectiveTR,
   };
@@ -159,7 +167,8 @@ export function rebalanceIndex(
     weights[c.ticker] = c.weight;
   }
 
-  return { t0, divisor, units, weights };
+  // trDivisor identique au divisor lors d'un rééquilibrage (on utilise les mêmes prix courants)
+  return { t0, divisor, trDivisor: divisor, units, weights };
 }
 
 /** Calcule le poids effectif de chaque titre dans l'indice à une date donnée */
