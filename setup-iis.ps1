@@ -61,12 +61,20 @@ if (-not $mimeMap) {
     Write-Host "[OK] Type MIME application/json ajoute"
 }
 
-# Document par defaut : index.html
-Add-WebConfiguration `
+# Document par defaut : index.html (seulement si absent)
+$hasIndexHtml = Get-WebConfigurationProperty `
     -Filter "system.webServer/defaultDocument/files" `
     -PSPath "IIS:\Sites\$SiteName" `
-    -Value @{ value = "index.html" } `
-    -ErrorAction SilentlyContinue
+    -Name collection |
+    Where-Object { $_.value -eq "index.html" }
+
+if (-not $hasIndexHtml) {
+    Add-WebConfiguration `
+        -Filter "system.webServer/defaultDocument/files" `
+        -PSPath "IIS:\Sites\$SiteName" `
+        -Value @{ value = "index.html" }
+    Write-Host "[OK] Document par defaut index.html ajoute"
+}
 
 Write-Host ""
 Write-Host "=== Installation terminee ==="
