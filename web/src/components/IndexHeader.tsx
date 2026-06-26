@@ -1,0 +1,65 @@
+import type { HistoryEntry } from "../hooks/useIndexData";
+
+interface Props {
+  history: HistoryEntry[];
+  variant: "pr" | "tr";
+  onVariantChange: (v: "pr" | "tr") => void;
+}
+
+export function IndexHeader({ history, variant, onVariantChange }: Props) {
+  const last = history[history.length - 1];
+  const prev = history[history.length - 2];
+
+  if (!last) return null;
+
+  const value = variant === "pr" ? last.pr : last.tr;
+  const prevValue = prev ? (variant === "pr" ? prev.pr : prev.tr) : value;
+  const delta = value - prevValue;
+  const deltaPct = prevValue !== 0 ? (delta / prevValue) * 100 : 0;
+  const isUp = delta >= 0;
+
+  return (
+    <div className="bg-slate-800 rounded-2xl p-6 mb-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-slate-400 text-sm font-medium uppercase tracking-widest mb-1">
+            ICQ-20 — Indice Canadien de Qualité
+          </h1>
+          <div className="flex items-baseline gap-3">
+            <span className="text-5xl font-bold text-white tabular-nums">
+              {value.toFixed(2)}
+            </span>
+            <span className="text-slate-400 text-lg">pts</span>
+          </div>
+          <div className={`flex items-center gap-2 mt-2 text-lg font-medium ${isUp ? "text-green-400" : "text-red-400"}`}>
+            <span>{isUp ? "▲" : "▼"}</span>
+            <span>
+              {isUp ? "+" : ""}{delta.toFixed(2)} pts ({isUp ? "+" : ""}{deltaPct.toFixed(2)}%)
+            </span>
+            <span className="text-slate-500 text-sm font-normal">aujourd'hui</span>
+          </div>
+        </div>
+
+        <div className="flex gap-2 self-center">
+          {(["pr", "tr"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => onVariantChange(v)}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                variant === v
+                  ? "bg-blue-600 text-white"
+                  : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+              }`}
+            >
+              ICQ-20 {v.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <p className="text-slate-500 text-xs mt-4">
+        Données au {last.date} · Cours du jour (clôture TSX)
+      </p>
+    </div>
+  );
+}
