@@ -39,23 +39,24 @@ export async function fetchHistory(
   to: Date,
 ): Promise<DayPrice[]> {
   await sleep(DELAY_MS);
-  const rows = await withRetry(
+  // yahoo-finance2 v3 : chart() remplace historical()
+  const result = await withRetry(
     () =>
-      yf.historical(ticker, {
+      yf.chart(ticker, {
         period1: from,
         period2: to,
         interval: "1d",
-        includeAdjustedClose: true,
       }),
     ticker,
   );
 
-  return rows
+  const quotes = result.quotes ?? [];
+  return quotes
     .filter((r) => r.close != null)
     .map((r) => ({
-      date: r.date.toISOString().slice(0, 10),
-      close: r.close,
-      adjClose: (r as { adjClose?: number }).adjClose ?? r.close,
+      date: new Date(r.date).toISOString().slice(0, 10),
+      close: r.close as number,
+      adjClose: (r.adjclose as number | undefined) ?? (r.close as number),
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
 }

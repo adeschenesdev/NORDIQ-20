@@ -1,0 +1,66 @@
+name: Déploiement GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Aussi déclenché après le workflow update (data.json mis à jour)
+  workflow_run:
+    workflows: ["Mise à jour quotidienne ICQ-20"]
+    types: [completed]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un seul déploiement simultané
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Vite
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Installer les dépendances (racine)
+        run: npm ci
+
+      - name: Installer les dépendances (web)
+        run: npm ci --prefix web
+
+      - name: Build
+        run: npm run build --prefix web
+
+      # Copier data.json dans le répertoire de build pour qu'il soit servi à ./data.json
+      - name: Copier data.json dans dist/
+        run: cp data/data.json web/dist/data.json
+
+      - name: Uploader l'artefact Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    name: Déploiement
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Déployer sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
