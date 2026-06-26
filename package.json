@@ -1,0 +1,29 @@
+{
+  "name": "icq20",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ICQ-20 — Indice Canadien de Qualité",
+  "type": "module",
+  "scripts": {
+    "update": "tsx src/scripts/update.ts",
+    "backfill": "tsx src/scripts/backfill.ts",
+    "rebalance": "tsx src/scripts/rebalance.ts",
+    "verify-tickers": "tsx src/scripts/verify-tickers.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=web"
+  },
+  "workspaces": [
+    "web"
+  ],
+  "dependencies": {
+    "yahoo-finance2": "^3.15.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.0"
+  }
+}

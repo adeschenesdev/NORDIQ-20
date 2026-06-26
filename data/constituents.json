@@ -1,0 +1,119 @@
+{
+  "_comment": "Fichier de configuration des constituants de l'ICQ-20. Modifiez ce fichier pour changer les titres et les poids sans toucher au code. La somme des poids doit être égale à 1.0 (100%).",
+  "constituents": [
+    {
+      "ticker": "FFH.TO",
+      "name": "Fairfax Financial",
+      "sector": "Finance",
+      "weight": 0.066
+    },
+    {
+      "ticker": "NA.TO",
+      "name": "Banque Nationale",
+      "sector": "Finance",
+      "weight": 0.066
+    },
+    {
+      "ticker": "BN.TO",
+      "name": "Brookfield Corporation",
+      "sector": "Finance",
+      "weight": 0.066
+    },
+    {
+      "ticker": "MFC.TO",
+      "name": "Manuvie",
+      "sector": "Finance",
+      "weight": 0.066
+    },
+    {
+      "ticker": "IFC.TO",
+      "name": "Intact Financière",
+      "sector": "Finance",
+      "weight": 0.066
+    },
+    {
+      "ticker": "K.TO",
+      "name": "Kinross Gold",
+      "sector": "Matériaux",
+      "weight": 0.060
+    },
+    {
+      "ticker": "LUG.TO",
+      "name": "Lundin Gold",
+      "sector": "Matériaux",
+      "weight": 0.060
+    },
+    {
+      "ticker": "AGI.TO",
+      "name": "Alamos Gold",
+      "sector": "Matériaux",
+      "weight": 0.060
+    },
+    {
+      "ticker": "CNQ.TO",
+      "name": "Canadian Natural Resources",
+      "sector": "Énergie",
+      "weight": 0.075
+    },
+    {
+      "ticker": "IMO.TO",
+      "name": "Imperial Oil",
+      "sector": "Énergie",
+      "weight": 0.075
+    },
+    {
+      "ticker": "HPS-A.TO",
+      "name": "Hammond Power Solutions",
+      "sector": "Industrie",
+      "weight": 0.055
+    },
+    {
+      "ticker": "TVK.TO",
+      "name": "TerraVest Industries",
+      "sector": "Industrie",
+      "weight": 0.055
+    },
+    {
+      "ticker": "CLS.TO",
+      "name": "Celestica",
+      "sector": "Technologies",
+      "weight": 0.050
+    },
+    {
+      "ticker": "MDA.TO",
+      "name": "MDA Space",
+      "sector": "Technologies",
+      "weight": 0.050
+    },
+    {
+      "ticker": "H.TO",
+      "name": "Hydro One",
+      "sector": "Services publics",
+      "weight": 0.035
+    },
+    {
+      "ticker": "DOL.TO",
+      "name": "Dollarama",
+      "sector": "Consommation discrétionnaire",
+      "weight": 0.030
+    },
+    {
+      "ticker": "L.TO",
+      "name": "Loblaw",
+      "sector": "Consommation de base",
+      "weight": 0.030
+    },
+    {
+      "ticker": "QBR-B.TO",
+      "name": "Québecor",
+      "sector": "Communication",
+      "weight": 0.020
+    },
+    {
+      "ticker": "FSV.TO",
+      "name": "FirstService",
+      "sector": "Immobilier",
+      "weight": 0.015
+    }
+  ]
+}
