@@ -1,6 +1,6 @@
 # setup-iis.ps1
 # Configure un site IIS local pour l'ICQ-20.
-# À exécuter une seule fois en tant qu'Administrateur dans PowerShell.
+# A executer une seule fois en tant qu'Administrateur dans PowerShell.
 #
 # Usage :
 #   .\setup-iis.ps1
@@ -13,7 +13,7 @@ param(
 
 $distPath = Join-Path $PSScriptRoot "web\dist"
 
-# Vérification que le build existe
+# Verification que le build existe
 if (-not (Test-Path (Join-Path $distPath "index.html"))) {
     Write-Error "web\dist\index.html introuvable. Lancez d'abord : npm run build:local"
     exit 1
@@ -22,28 +22,28 @@ if (-not (Test-Path (Join-Path $distPath "index.html"))) {
 # Import du module WebAdministration
 Import-Module WebAdministration -ErrorAction Stop
 
-# Création du pool d'applications (No Managed Code — site statique)
+# Creation du pool d'applications (No Managed Code -- site statique)
 if (-not (Test-Path "IIS:\AppPools\$SiteName")) {
     New-WebAppPool -Name $SiteName | Out-Null
     Set-ItemProperty "IIS:\AppPools\$SiteName" managedRuntimeVersion ""
-    Write-Host "✓ Pool d'applications '$SiteName' créé"
+    Write-Host "[OK] Pool d'applications '$SiteName' cree"
 } else {
-    Write-Host "  Pool '$SiteName' déjà existant"
+    Write-Host "     Pool '$SiteName' deja existant"
 }
 
 # Suppression de l'ancien site s'il existe
 if (Get-Website -Name $SiteName -ErrorAction SilentlyContinue) {
     Remove-Website -Name $SiteName
-    Write-Host "  Ancien site '$SiteName' supprimé"
+    Write-Host "     Ancien site '$SiteName' supprime"
 }
 
-# Création du site
+# Creation du site
 New-Website -Name $SiteName `
             -PhysicalPath $distPath `
             -Port $Port `
             -ApplicationPool $SiteName | Out-Null
 
-Write-Host "✓ Site '$SiteName' créé sur le port $Port"
+Write-Host "[OK] Site '$SiteName' cree sur le port $Port"
 
 # Ajout du type MIME application/json si absent
 $mimeMap = Get-WebConfigurationProperty `
@@ -58,10 +58,10 @@ if (-not $mimeMap) {
         -PSPath "IIS:\Sites\$SiteName" `
         -Name collection `
         -Value @{ fileExtension = ".json"; mimeType = "application/json" }
-    Write-Host "✓ Type MIME application/json ajouté"
+    Write-Host "[OK] Type MIME application/json ajoute"
 }
 
-# Document par défaut : index.html
+# Document par defaut : index.html
 Add-WebConfiguration `
     -Filter "system.webServer/defaultDocument/files" `
     -PSPath "IIS:\Sites\$SiteName" `
@@ -69,9 +69,9 @@ Add-WebConfiguration `
     -ErrorAction SilentlyContinue
 
 Write-Host ""
-Write-Host "=== Installation terminée ==="
+Write-Host "=== Installation terminee ==="
 Write-Host "Site disponible : http://localhost:$Port"
 Write-Host ""
 Write-Host "Flux de travail quotidien :"
-Write-Host "  1. npm run update   (après 16h00 HNE, met à jour data.json et dist/)"
-Write-Host "  2. Rafraîchir http://localhost:$Port dans le navigateur"
+Write-Host "  1. npm run update   (apres 16h00 HNE, met a jour data.json et dist/)"
+Write-Host "  2. Rafraichir http://localhost:$Port dans le navigateur"
