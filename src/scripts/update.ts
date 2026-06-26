@@ -38,18 +38,16 @@ for (const ticker of tickers) {
   }
 }
 
-// Cours précédents comme fallback
 const lastEntry = store.history[store.history.length - 1];
-const lastPR: Record<string, number> = {};
-const lastTR: Record<string, number> = {};
 
-// On n'a pas de prix par ticker dans l'historique agrégé —
-// les cours manquants du jour seront signalés mais ne bloqueront pas.
-// Pour un report fiable, utiliser le backfill.
+// Cours précédents comme fallback (depuis prices stockés)
+const lastDate = lastEntry?.date;
+const lastPR: Record<string, number> = lastDate ? (store.prices[lastDate] ?? {}) : {};
+const lastTR: Record<string, number> = lastPR;
 
 try {
   const result = calculateIndex(store.config, pricesPR, today, pricesTR, lastPR, lastTR);
-  upsertEntry(store, { date: today, pr: result.pr, tr: result.tr });
+  upsertEntry(store, { date: today, pr: result.pr, tr: result.tr }, result.pricesPR);
   saveStore(store);
 
   const prev = lastEntry;

@@ -1,4 +1,7 @@
+import { useState } from "react";
 import type { HistoryEntry, IndexConfig } from "../hooks/useIndexData";
+import { ConstituentDetail } from "./ConstituentDetail";
+import type { Period } from "./HistoryChart";
 import constituentsRaw from "../../../data/constituents.json";
 
 interface Constituent {
@@ -14,9 +17,12 @@ interface Props {
   history: HistoryEntry[];
   config: IndexConfig;
   variant: "pr" | "tr";
+  period: Period;
+  prices: Record<string, Record<string, number>>;
 }
 
-export function ConstituentTable({ history, config, variant }: Props) {
+export function ConstituentTable({ history, config, variant, period, prices }: Props) {
+  const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
   const last = history[history.length - 1];
 
   if (!last) return null;
@@ -25,20 +31,28 @@ export function ConstituentTable({ history, config, variant }: Props) {
 
   const rows = constituents.map((c) => {
     const weight = config.weights[c.ticker] ?? c.weight;
-    // Contribution en points = poids × valeur de l'indice
     const contrib = weight * indexValue;
 
-    return {
-      ticker: c.ticker,
-      name: c.name,
-      sector: c.sector,
-      weight,
-      contrib,
-    };
+    // Dernier cours connu
+    const lastDate = Object.keys(prices).sort().at(-1);
+    const currentPrice = lastDate ? prices[lastDate]?.[c.ticker] : undefined;
+
+    // Variation du jour
+    const dates = Object.keys(prices).sort();
+    const prevDate = dates.at(-2);
+    const prevPrice = prevDate ? prices[prevDate]?.[c.ticker] : undefined;
+    const dayChange = currentPrice && prevPrice ? ((currentPrice - prevPrice) / prevPrice) * 100 : null;
+
+    return { ...c, weight, contrib, currentPrice, dayChange };
   });
 
-  // Tri par poids décroissant
   rows.sort((a, b) => b.weight - a.weight);
+
+  const selectedConstituent = constituents.find((c) => c.ticker === selectedTicker) ?? null;
+
+  function handleRowClick(ticker: string) {
+    setSelectedTicker((prev) => (prev === ticker ? null : ticker));
+  }
 
   return (
     <div className="bg-slate-800 rounded-2xl p-6 mb-6 overflow-x-auto">
@@ -49,30 +63,73 @@ export function ConstituentTable({ history, config, variant }: Props) {
             <th className="text-left py-2 pr-4 font-medium">Société</th>
             <th className="text-left py-2 pr-4 font-medium">Ticker</th>
             <th className="text-left py-2 pr-4 font-medium hidden md:table-cell">Secteur</th>
-            <th className="text-right py-2 pr-4 font-medium">Poids cible</th>
-            <th className="text-right py-2 font-medium">Contribution (pts)</th>
+            <th className="text-right py-2 pr-4 font-medium">Cours</th>
+            <th className="text-right py-2 pr-4 font-medium hidden sm:table-cell">Δ jour</th>
+            <th className="text-right py-2 pr-4 font-medium">Poids</th>
+            <th className="text-right py-2 font-medium">Contrib. (pts)</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.ticker} className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors">
-              <td className="py-2 pr-4 text-slate-200 font-medium">{r.name}</td>
-              <td className="py-2 pr-4">
-                <span className="font-mono text-blue-400 text-xs bg-blue-950/50 px-2 py-0.5 rounded">
-                  {r.ticker}
-                </span>
-              </td>
-              <td className="py-2 pr-4 text-slate-400 hidden md:table-cell">{r.sector}</td>
-              <td className="py-2 pr-4 text-right tabular-nums text-slate-200">
-                {(r.weight * 100).toFixed(1)}%
-              </td>
-              <td className="py-2 text-right tabular-nums text-slate-200">
-                {r.contrib.toFixed(1)}
-              </td>
-            </tr>
-          ))}
+          {rows.map((r) => {
+            const isSelected = selectedTicker === r.ticker;
+            return (
+              <tr
+                key={r.ticker}
+                onClick={() => handleRowClick(r.ticker)}
+                className={`border-b border-slate-700/50 cursor-pointer transition-colors ${
+                  isSelected
+                    ? "bg-blue-900/30 hover:bg-blue-900/40"
+                    : "hover:bg-slate-700/30"
+                }`}
+              >
+                <td className="py-2 pr-4 text-slate-200 font-medium">
+                  <span className="flex items-center gap-1">
+                    {isSelected && <span className="text-blue-400 text-xs">▶</span>}
+                    {r.name}
+                  </span>
+                </td>
+                <td className="py-2 pr-4">
+                  <span className="font-mono text-blue-400 text-xs bg-blue-950/50 px-2 py-0.5 rounded">
+                    {r.ticker}
+                  </span>
+                </td>
+                <td className="py-2 pr-4 text-slate-400 hidden md:table-cell">{r.sector}</td>
+                <td className="py-2 pr-4 text-right tabular-nums text-slate-200">
+                  {r.currentPrice != null
+                    ? r.currentPrice.toLocaleString("fr-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : "—"}
+                </td>
+                <td className="py-2 pr-4 text-right tabular-nums hidden sm:table-cell">
+                  {r.dayChange != null ? (
+                    <span className={r.dayChange >= 0 ? "text-green-400" : "text-red-400"}>
+                      {r.dayChange >= 0 ? "+" : ""}{r.dayChange.toFixed(2)}%
+                    </span>
+                  ) : "—"}
+                </td>
+                <td className="py-2 pr-4 text-right tabular-nums text-slate-200">
+                  {(r.weight * 100).toFixed(1)}%
+                </td>
+                <td className="py-2 text-right tabular-nums text-slate-200">
+                  {r.contrib.toFixed(1)}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+
+      {/* Panneau de détail inline */}
+      {selectedConstituent && (
+        <div className="mt-4">
+          <ConstituentDetail
+            constituent={selectedConstituent}
+            prices={prices}
+            period={period}
+            indexValue={indexValue}
+            onClose={() => setSelectedTicker(null)}
+          />
+        </div>
+      )}
     </div>
   );
 }

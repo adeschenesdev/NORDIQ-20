@@ -17,6 +17,8 @@ export interface IndexConfig {
 export interface IndexData {
   config: IndexConfig;
   history: HistoryEntry[];
+  /** Cours de clôture bruts : prices[date][ticker] = close */
+  prices: Record<string, Record<string, number>>;
   meta: { updatedAt: string; source: string };
 }
 

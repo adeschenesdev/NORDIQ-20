@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useIndexData } from "./hooks/useIndexData";
 import { IndexHeader } from "./components/IndexHeader";
 import { HistoryChart } from "./components/HistoryChart";
+import type { Period } from "./components/HistoryChart";
 import { ConstituentTable } from "./components/ConstituentTable";
 import { SectorChart } from "./components/SectorChart";
 
 export default function App() {
   const { data, error, loading } = useIndexData();
   const [variant, setVariant] = useState<"pr" | "tr">("pr");
+  const [period, setPeriod] = useState<Period>("1A");
 
   if (loading) {
     return (
@@ -46,12 +48,19 @@ export default function App() {
           variant={variant}
           onVariantChange={setVariant}
         />
-        <HistoryChart history={data.history} variant={variant} />
+        <HistoryChart
+          history={data.history}
+          variant={variant}
+          period={period}
+          onPeriodChange={setPeriod}
+        />
         <div className="grid grid-cols-1 gap-6">
           <ConstituentTable
             history={data.history}
             config={data.config}
             variant={variant}
+            period={period}
+            prices={data.prices ?? {}}
           />
           <SectorChart />
         </div>

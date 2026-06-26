@@ -36,6 +36,12 @@ console.log(`Constituants : ${tickers.length}\n`);
 const store = loadStore();
 let needsInit = resetFlag || !store.config.t0 || !store.config.divisor;
 
+// --reset : vider l'historique et les prix existants pour repartir proprement
+if (resetFlag) {
+  store.history = [];
+  store.prices = {};
+}
+
 // Récupération de l'historique complet
 console.log("Récupération des données Yahoo Finance…\n");
 const byDate = await fetchAllHistory(tickers, fromDate, toDate);
@@ -96,7 +102,7 @@ for (const date of sortedDates) {
 
   try {
     const result = calculateIndex(store.config, pricesPR, date, pricesTR, lastPR, lastTR);
-    upsertEntry(store, { date, pr: result.pr, tr: result.tr });
+    upsertEntry(store, { date, pr: result.pr, tr: result.tr }, result.pricesPR);
     lastPR = result.pricesPR;
     lastTR = result.pricesTR;
     processed++;

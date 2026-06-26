@@ -15,6 +15,8 @@ export interface HistoryEntry {
 export interface DataStore {
   config: IndexConfig;
   history: HistoryEntry[];
+  /** Cours de clôture bruts par date et par ticker : prices[date][ticker] = close */
+  prices: Record<string, Record<string, number>>;
   meta: {
     updatedAt: string;
     source: string;
@@ -25,10 +27,12 @@ const EMPTY_STORE: DataStore = {
   config: {
     t0: "",
     divisor: 0,
+    trDivisor: 0,
     units: {},
     weights: {},
   },
   history: [],
+  prices: {},
   meta: {
     updatedAt: "",
     source: "yahoo-finance2 (source non officielle, à titre éducatif uniquement)",
@@ -36,12 +40,15 @@ const EMPTY_STORE: DataStore = {
 };
 
 export function loadStore(): DataStore {
-  if (!existsSync(DATA_PATH)) return { ...EMPTY_STORE };
+  if (!existsSync(DATA_PATH)) return structuredClone(EMPTY_STORE);
   try {
-    return JSON.parse(readFileSync(DATA_PATH, "utf-8")) as DataStore;
+    const raw = JSON.parse(readFileSync(DATA_PATH, "utf-8")) as DataStore;
+    // Compatibilité ascendante : data.json antérieur sans champ prices
+    if (!raw.prices) raw.prices = {};
+    return raw;
   } catch {
     console.warn("[store] data.json invalide, réinitialisation.");
-    return { ...EMPTY_STORE };
+    return structuredClone(EMPTY_STORE);
   }
 }
 
@@ -53,7 +60,11 @@ export function saveStore(store: DataStore): void {
 }
 
 /** Ajoute ou met à jour une entrée par date (idempotent). */
-export function upsertEntry(store: DataStore, entry: HistoryEntry): void {
+export function upsertEntry(
+  store: DataStore,
+  entry: HistoryEntry,
+  dayPrices?: Record<string, number>,
+): void {
   const idx = store.history.findIndex((h) => h.date === entry.date);
   if (idx >= 0) {
     store.history[idx] = entry;
@@ -61,14 +72,7 @@ export function upsertEntry(store: DataStore, entry: HistoryEntry): void {
     store.history.push(entry);
     store.history.sort((a, b) => a.date.localeCompare(b.date));
   }
-}
-
-/** Retourne le dernier cours connu pour chaque ticker à partir de l'historique. */
-export function getLastPrices(
-  store: DataStore,
-): { pr: Record<string, number>; tr: Record<string, number> } | null {
-  if (store.history.length === 0) return null;
-  // Les prix par ticker ne sont pas stockés dans l'historique agrégé —
-  // cette fonction est un helper pour signaler l'absence de données brutes.
-  return null;
+  if (dayPrices) {
+    store.prices[entry.date] = dayPrices;
+  }
 }
