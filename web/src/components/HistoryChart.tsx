@@ -80,7 +80,7 @@ export function HistoryChart({ history, variant, period, onPeriodChange }: Props
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-slate-200 font-semibold text-lg">
-            Historique ICQ-20 {variant.toUpperCase()}
+            Historique NORDIQ-20 {variant.toUpperCase()}
           </h2>
           {perfPct !== null && (
             <p className={`text-sm font-medium mt-0.5 ${perfPct >= 0 ? "text-green-400" : "text-red-400"}`}>

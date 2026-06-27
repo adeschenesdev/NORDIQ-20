@@ -1,14 +1,14 @@
 # setup-iis.ps1
-# Configure un site IIS local pour l'ICQ-20.
+# Configure un site IIS local pour l'NORDIQ-20.
 # A executer une seule fois en tant qu'Administrateur dans PowerShell.
 #
 # Usage :
 #   .\setup-iis.ps1
-#   .\setup-iis.ps1 -Port 8080 -SiteName "ICQ20"
+#   .\setup-iis.ps1 -Port 8080 -SiteName "NORDIQ20"
 
 param(
     [int]    $Port     = 8080,
-    [string] $SiteName = "ICQ20"
+    [string] $SiteName = "NORDIQ20"
 )
 
 $distPath = Join-Path $PSScriptRoot "web\dist"

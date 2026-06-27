@@ -22,7 +22,7 @@ if (!store.config.t0 || !store.history.length) {
 }
 
 const lastEntry = store.history[store.history.length - 1];
-console.log(`=== ICQ-20 Rééquilibrage ===`);
+console.log(`=== NORDIQ-20 Rééquilibrage ===`);
 console.log(`Valeur actuelle : ${lastEntry.pr.toFixed(2)} PR (${lastEntry.date})\n`);
 console.log("Récupération des cours courants…\n");
 

@@ -69,7 +69,7 @@ export default function App() {
             Dernière mise à jour : {updatedAt} · Source : {data.meta?.source ?? "yahoo-finance2"}
           </p>
           <p className="text-slate-700">
-            ⚠ Ceci n'est pas un conseil de placement. L'ICQ-20 est un indice expérimental à titre éducatif uniquement.
+            ⚠ Ceci n'est pas un conseil de placement. L'NORDIQ-20 est un indice expérimental à titre éducatif uniquement.
             Les performances passées ne garantissent pas les résultats futurs.
           </p>
           <p className="text-slate-700">

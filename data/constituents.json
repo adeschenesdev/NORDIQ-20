@@ -1,5 +1,5 @@
 {
-  "_comment": "Fichier de configuration des constituants de l'ICQ-20. Modifiez ce fichier pour changer les titres et les poids sans toucher au code. La somme des poids doit être égale à 1.0 (100%).",
+  "_comment": "Fichier de configuration des constituants de l'NORDIQ-20. Modifiez ce fichier pour changer les titres et les poids sans toucher au code. La somme des poids doit être égale à 1.0 (100%).",
   "constituents": [
     {
       "ticker": "FFH.TO",

@@ -21,7 +21,7 @@ if (!store.config.t0 || !store.config.divisor) {
   process.exit(1);
 }
 
-console.log("=== ICQ-20 Update ===");
+console.log("=== NORDIQ-20 Update ===");
 console.log("Récupération des cours…\n");
 
 const todayPrices = await fetchTodayPrices(tickers);
@@ -55,8 +55,8 @@ try {
   const deltaPct = prev ? (deltaPR / prev.pr) * 100 : 0;
 
   console.log(`✓ ${today}`);
-  console.log(`  ICQ-20 PR : ${result.pr.toFixed(2)}  (${deltaPR >= 0 ? "+" : ""}${deltaPR.toFixed(2)} pts, ${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(2)}%)`);
-  console.log(`  ICQ-20 TR : ${result.tr.toFixed(2)}`);
+  console.log(`  NORDIQ-20 PR : ${result.pr.toFixed(2)}  (${deltaPR >= 0 ? "+" : ""}${deltaPR.toFixed(2)} pts, ${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(2)}%)`);
+  console.log(`  NORDIQ-20 TR : ${result.tr.toFixed(2)}`);
 
   // Synchronise automatiquement web/dist/data.json si le dossier existe (site IIS)
   try {

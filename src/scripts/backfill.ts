@@ -1,7 +1,7 @@
 /**
  * npm run backfill [-- --from YYYY-MM-DD]
  *
- * Reconstruit l'historique complet de l'ICQ-20 depuis t0.
+ * Reconstruit l'historique complet de l'NORDIQ-20 depuis t0.
  * Si data.json existe déjà avec une config, il ne réinitialise PAS le diviseur
  * (sauf si --reset est passé). Les dates déjà présentes sont écrasées (idempotent).
  */
@@ -30,7 +30,7 @@ const fromDate = new Date(fromArg ?? DEFAULT_T0);
 const toDate = new Date();
 toDate.setHours(23, 59, 59);
 
-console.log(`\n=== ICQ-20 Backfill ===`);
+console.log(`\n=== NORDIQ-20 Backfill ===`);
 console.log(`Période : ${fromDate.toISOString().slice(0, 10)} → aujourd'hui`);
 console.log(`Constituants : ${tickers.length}\n`);
 

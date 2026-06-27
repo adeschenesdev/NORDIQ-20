@@ -1,7 +1,7 @@
 /**
- * Moteur de calcul ICQ-20 — méthode du diviseur (v2.1)
+ * Moteur de calcul NORDIQ-20 — méthode du diviseur (v2.1)
  *
- * Formule : ICQ20_t = (Σ_i q_i · P_i(t)) / D
+ * Formule : NORDIQ20_t = (Σ_i q_i · P_i(t)) / D
  * où q_i = w_i / P_i(t0)  et  D = Σ q_i · P_i(t0) / 1000
  *
  * Cette approche garantit :
@@ -65,9 +65,9 @@ export function initializeIndex(
     trPortfolioValue += units[c.ticker] * adjPrice;
   }
 
-  // D_PR = portfolioValue / baseValue  →  ICQ20_PR(t0) = baseValue
+  // D_PR = portfolioValue / baseValue  →  NORDIQ20_PR(t0) = baseValue
   const divisor = portfolioValue / baseValue;
-  // D_TR est calculé indépendamment pour que ICQ20_TR(t0) = baseValue aussi
+  // D_TR est calculé indépendamment pour que NORDIQ20_TR(t0) = baseValue aussi
   const trDivisor = trPortfolioValue / baseValue;
 
   const weights: Record<string, number> = {};

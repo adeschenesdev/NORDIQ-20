@@ -1,8 +1,8 @@
-# ICQ-20 — Indice Canadien de Qualité
+# NORDIQ-20 — Indice Canadien de Qualité
 
-Application web locale qui affiche, conserve et met à jour l'ICQ-20, un indice boursier pancanadien de 19 constituants sélectionnés par secteur GICS selon leur rendement total sur 3 ans.
+Application web locale qui affiche, conserve et met à jour l'NORDIQ-20, un indice boursier pancanadien de 19 constituants sélectionnés par secteur GICS selon leur rendement total sur 3 ans.
 
-> **⚠ Avertissement** : ceci est un projet personnel éducatif. L'ICQ-20 n'est **pas** un produit financier réglementé et ne constitue **pas** un conseil de placement. Les données proviennent de [yahoo-finance2](https://github.com/gadicc/node-yahoo-finance2), une bibliothèque non officielle, non affiliée à Yahoo Finance. Utilisation à des fins personnelles uniquement, dans le respect des conditions d'utilisation de Yahoo.
+> **⚠ Avertissement** : ceci est un projet personnel éducatif. L'NORDIQ-20 n'est **pas** un produit financier réglementé et ne constitue **pas** un conseil de placement. Les données proviennent de [yahoo-finance2](https://github.com/gadicc/node-yahoo-finance2), une bibliothèque non officielle, non affiliée à Yahoo Finance. Utilisation à des fins personnelles uniquement, dans le respect des conditions d'utilisation de Yahoo.
 
 ---
 
@@ -24,7 +24,7 @@ Application web locale qui affiche, conserve et met à jour l'ICQ-20, un indice 
 ## Architecture
 
 ```
-icq20/
+NORDIQ20/
 ├── data/
 │   ├── constituents.json   ← seul fichier à modifier pour changer la composition
 │   └── data.json           ← historique + état du diviseur (versionné)
@@ -50,7 +50,7 @@ icq20/
 ## Installation
 
 ```bash
-cd icq20
+cd NORDIQ20
 npm install
 cd web && npm install && cd ..
 ```
@@ -147,10 +147,10 @@ Le script :
 
 ## Méthode de calcul
 
-L'ICQ-20 utilise la **méthode du diviseur** (standard des grands indices boursiers) :
+L'NORDIQ-20 utilise la **méthode du diviseur** (standard des grands indices boursiers) :
 
 ```
-ICQ20(t) = [ Σ_i  q_i × P_i(t) ]  /  D
+NORDIQ20(t) = [ Σ_i  q_i × P_i(t) ]  /  D
 ```
 
 où :

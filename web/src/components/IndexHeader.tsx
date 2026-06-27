@@ -23,7 +23,7 @@ export function IndexHeader({ history, variant, onVariantChange }: Props) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-slate-400 text-sm font-medium uppercase tracking-widest mb-1">
-            ICQ-20 — Indice Canadien de Qualité
+            NORDIQ-20 — Indice Canadien de Qualité
           </h1>
           <div className="flex items-baseline gap-3">
             <span className="text-5xl font-bold text-white tabular-nums">
@@ -51,7 +51,7 @@ export function IndexHeader({ history, variant, onVariantChange }: Props) {
                   : "bg-slate-700 text-slate-300 hover:bg-slate-600"
               }`}
             >
-              ICQ-20 {v.toUpperCase()}
+              NORDIQ-20 {v.toUpperCase()}
             </button>
           ))}
         </div>
