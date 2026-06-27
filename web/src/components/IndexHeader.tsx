@@ -4,9 +4,10 @@ interface Props {
   history: HistoryEntry[];
   variant: "pr" | "tr";
   onVariantChange: (v: "pr" | "tr") => void;
+  onAboutClick?: () => void;
 }
 
-export function IndexHeader({ history, variant, onVariantChange }: Props) {
+export function IndexHeader({ history, variant, onVariantChange, onAboutClick }: Props) {
   const last = history[history.length - 1];
   const prev = history[history.length - 2];
 
@@ -17,6 +18,11 @@ export function IndexHeader({ history, variant, onVariantChange }: Props) {
   const delta = value - prevValue;
   const deltaPct = prevValue !== 0 ? (delta / prevValue) * 100 : 0;
   const isUp = delta >= 0;
+
+  const ytdCutoff = `${new Date().getFullYear()}-01-01`;
+  const ytdEntry = history.find((h) => h.date >= ytdCutoff);
+  const ytdValue = ytdEntry ? (variant === "pr" ? ytdEntry.pr : ytdEntry.tr) : null;
+  const ytdPct = ytdValue ? ((value - ytdValue) / ytdValue) * 100 : null;
 
   return (
     <div className="bg-slate-800 rounded-2xl p-6 mb-6">
@@ -38,9 +44,26 @@ export function IndexHeader({ history, variant, onVariantChange }: Props) {
             </span>
             <span className="text-slate-500 text-sm font-normal">aujourd'hui</span>
           </div>
+          {ytdPct !== null && (
+            <div className="flex items-center gap-2 mt-1 text-sm">
+              <span className={`font-medium ${ytdPct >= 0 ? "text-green-400" : "text-red-400"}`}>
+                {ytdPct >= 0 ? "+" : ""}{ytdPct.toFixed(2)}%
+              </span>
+              <span className="text-slate-500">YTD</span>
+            </div>
+          )}
         </div>
 
-        <div className="flex gap-2 self-center">
+        <div className="flex flex-col items-end gap-2 self-center">
+          {onAboutClick && (
+            <button
+              onClick={onAboutClick}
+              className="text-xs text-slate-500 hover:text-slate-300 underline underline-offset-2"
+            >
+              À propos
+            </button>
+          )}
+          <div className="flex gap-2">
           {(["pr", "tr"] as const).map((v) => (
             <button
               key={v}
@@ -54,6 +77,7 @@ export function IndexHeader({ history, variant, onVariantChange }: Props) {
               NORDIQ-20 {v.toUpperCase()}
             </button>
           ))}
+          </div>
         </div>
       </div>
 

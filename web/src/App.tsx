@@ -1,15 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIndexData } from "./hooks/useIndexData";
 import { IndexHeader } from "./components/IndexHeader";
 import { HistoryChart } from "./components/HistoryChart";
 import type { Period } from "./components/HistoryChart";
 import { ConstituentTable } from "./components/ConstituentTable";
 import { SectorChart } from "./components/SectorChart";
+import { PortfolioSimulator } from "./components/PortfolioSimulator";
+import { AboutModal } from "./components/AboutModal";
 
 export default function App() {
   const { data, error, loading } = useIndexData();
   const [variant, setVariant] = useState<"pr" | "tr">("pr");
   const [period, setPeriod] = useState<Period>("1A");
+  const [selectedSector, setSelectedSector] = useState<string | null>(null);
+  const [showAbout, setShowAbout] = useState(false);
+
+  const lastEntry = data?.history[data.history.length - 1];
+  useEffect(() => {
+    if (lastEntry) {
+      const val = variant === "pr" ? lastEntry.pr : lastEntry.tr;
+      document.title = `NORDIQ-20 ${variant.toUpperCase()}: ${val.toFixed(2)} pts`;
+    }
+  }, [lastEntry, variant]);
 
   if (loading) {
     return (
@@ -42,11 +54,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-900">
+      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
       <div className="max-w-5xl mx-auto px-4 py-8">
         <IndexHeader
           history={data.history}
           variant={variant}
           onVariantChange={setVariant}
+          onAboutClick={() => setShowAbout(true)}
         />
         <HistoryChart
           history={data.history}
@@ -61,15 +75,25 @@ export default function App() {
             variant={variant}
             period={period}
             prices={data.prices ?? {}}
+            sectorFilter={selectedSector}
           />
-          <SectorChart />
+          <SectorChart
+            onSectorClick={setSelectedSector}
+            selectedSector={selectedSector}
+          />
+          <PortfolioSimulator
+            config={data.config}
+            prices={data.prices ?? {}}
+          />
         </div>
         <footer className="mt-8 text-center text-xs text-slate-600 space-y-1">
           <p>
             Dernière mise à jour : {updatedAt} · Source : {data.meta?.source ?? "yahoo-finance2"}
+            {" · "}
+            <button onClick={() => setShowAbout(true)} className="underline hover:text-slate-400">À propos</button>
           </p>
           <p className="text-slate-700">
-            ⚠ Ceci n'est pas un conseil de placement. L'NORDIQ-20 est un indice expérimental à titre éducatif uniquement.
+            ⚠ Ceci n'est pas un conseil de placement. Le NORDIQ-20 est un indice expérimental à titre éducatif uniquement.
             Les performances passées ne garantissent pas les résultats futurs.
           </p>
           <p className="text-slate-700">

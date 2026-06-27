@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -7,6 +8,7 @@ import {
   Tooltip,
   CartesianGrid,
   ReferenceLine,
+  Legend,
 } from "recharts";
 import type { HistoryEntry } from "../hooks/useIndexData";
 
@@ -42,45 +44,52 @@ function formatDate(dateStr: string, period: Period) {
   return d.toLocaleDateString("fr-CA", { month: "short", year: "2-digit" });
 }
 
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string; color: string }[]; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm shadow-xl">
       <p className="text-slate-400 mb-1">{label}</p>
-      <p className="text-white font-bold text-base">{payload[0].value.toFixed(2)} pts</p>
+      {payload.map((p) => (
+        <p key={p.name} style={{ color: p.color }} className="font-bold text-base">{p.name} : {p.value.toFixed(2)} pts</p>
+      ))}
     </div>
   );
 }
 
 export function HistoryChart({ history, variant, period, onPeriodChange }: Props) {
+  const [compareMode, setCompareMode] = useState(false);
+
   const cutoff = cutoffDate(period);
   const filtered = cutoff ? history.filter((h) => h.date >= cutoff) : history;
 
   const data = filtered.map((h) => ({
     date: h.date,
+    PR: h.pr,
+    TR: h.tr,
     value: variant === "pr" ? h.pr : h.tr,
   }));
 
-  const values = data.map((d) => d.value);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
+  const activeValues = compareMode
+    ? [...data.map((d) => d.PR), ...data.map((d) => d.TR)]
+    : data.map((d) => d.value);
+  const min = Math.min(...activeValues);
+  const max = Math.max(...activeValues);
   const padding = (max - min) * 0.05 || 10;
 
   const tickCount = 7;
   const step = Math.max(1, Math.floor(data.length / tickCount));
   const ticks = data.filter((_, i) => i % step === 0 || i === data.length - 1).map((d) => d.date);
 
-  // Rendement sur la période sélectionnée
   const first = data[0];
   const last = data[data.length - 1];
-  const perfPct = first && last ? ((last.value - first.value) / first.value) * 100 : null;
+  const perfPct = !compareMode && first && last ? ((last.value - first.value) / first.value) * 100 : null;
 
   return (
     <div className="bg-slate-800 rounded-2xl p-6 mb-6">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-slate-200 font-semibold text-lg">
-            Historique NORDIQ-20 {variant.toUpperCase()}
+            {compareMode ? "Comparaison PR vs TR" : `Historique NORDIQ-20 ${variant.toUpperCase()}`}
           </h2>
           {perfPct !== null && (
             <p className={`text-sm font-medium mt-0.5 ${perfPct >= 0 ? "text-green-400" : "text-red-400"}`}>
@@ -88,20 +97,32 @@ export function HistoryChart({ history, variant, period, onPeriodChange }: Props
             </p>
           )}
         </div>
-        <div className="flex gap-1">
-          {PERIODS.map((p) => (
-            <button
-              key={p}
-              onClick={() => onPeriodChange(p)}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-                period === p
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-200"
-              }`}
-            >
-              {p}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setCompareMode((v) => !v)}
+            className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+              compareMode
+                ? "bg-purple-600 text-white"
+                : "bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-200"
+            }`}
+          >
+            PR vs TR
+          </button>
+          <div className="flex gap-1">
+            {PERIODS.map((p) => (
+              <button
+                key={p}
+                onClick={() => onPeriodChange(p)}
+                className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+                  period === p
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-200"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -133,14 +154,23 @@ export function HistoryChart({ history, variant, period, onPeriodChange }: Props
               label={{ value: "Base 1000", fill: "#64748b", fontSize: 11 }}
             />
           )}
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#3b82f6"
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: "#3b82f6" }}
-          />
+          {compareMode ? (
+            <>
+              <Legend formatter={(v) => <span style={{ color: "#cbd5e1", fontSize: 12 }}>{v}</span>} />
+              <Line type="monotone" dataKey="PR" stroke="#3b82f6" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
+              <Line type="monotone" dataKey="TR" stroke="#22c55e" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
+            </>
+          ) : (
+            <Line
+              type="monotone"
+              dataKey="value"
+              name={variant.toUpperCase()}
+              stroke="#3b82f6"
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, fill: "#3b82f6" }}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
     </div>
