@@ -22,6 +22,7 @@ function fmt(n: number) {
 
 export function PortfolioSimulator({ config, prices }: Props) {
   const [budget, setBudget] = useState(10000);
+  const [fractional, setFractional] = useState(false);
 
   const lastDate = Object.keys(prices).sort().at(-1);
 
@@ -29,7 +30,7 @@ export function PortfolioSimulator({ config, prices }: Props) {
     const weight = config.weights[c.ticker] ?? c.weight;
     const price = lastDate ? prices[lastDate]?.[c.ticker] : undefined;
     const allocated = budget * weight;
-    const shares = price ? Math.floor(allocated / price) : 0;
+    const shares = price ? (fractional ? allocated / price : Math.floor(allocated / price)) : 0;
     const cost = price ? shares * price : 0;
     const realWeight = budget > 0 && cost > 0 ? cost / budget : 0;
     const weightDiff = realWeight - weight;
@@ -44,17 +45,29 @@ export function PortfolioSimulator({ config, prices }: Props) {
     <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 mb-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
         <h2 className="text-slate-800 dark:text-slate-200 font-semibold text-lg">Simulateur de portefeuille</h2>
-        <div className="flex items-center gap-2">
-          <label className="text-slate-500 dark:text-slate-400 text-sm">Budget :</label>
-          <input
-            type="number"
-            value={budget}
-            min={100}
-            step={1000}
-            onChange={(e) => setBudget(Math.max(0, Number(e.target.value)))}
-            className="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-lg px-3 py-1.5 w-32 tabular-nums border border-slate-200 dark:border-slate-600 focus:outline-none focus:border-blue-500"
-          />
-          <span className="text-slate-500 dark:text-slate-400 text-sm">$</span>
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <label className="text-slate-500 dark:text-slate-400 text-sm">Budget :</label>
+            <input
+              type="number"
+              value={budget}
+              min={100}
+              step={1000}
+              onChange={(e) => setBudget(Math.max(0, Number(e.target.value)))}
+              className="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-lg px-3 py-1.5 w-32 tabular-nums border border-slate-200 dark:border-slate-600 focus:outline-none focus:border-blue-500"
+            />
+            <span className="text-slate-500 dark:text-slate-400 text-sm">$</span>
+          </div>
+          <button
+            onClick={() => setFractional((v) => !v)}
+            className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
+              fractional
+                ? "bg-blue-600 text-white"
+                : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600"
+            }`}
+          >
+            Fractions d'actions
+          </button>
         </div>
       </div>
 
@@ -88,7 +101,9 @@ export function PortfolioSimulator({ config, prices }: Props) {
                 <td className="py-2 pr-4 text-right tabular-nums text-slate-600 dark:text-slate-300">
                   {r.price != null ? `${fmt(r.price)} $` : "—"}
                 </td>
-                <td className="py-2 pr-4 text-right tabular-nums text-slate-800 dark:text-slate-100 font-semibold">{r.shares}</td>
+                <td className="py-2 pr-4 text-right tabular-nums text-slate-800 dark:text-slate-100 font-semibold">
+                  {fractional ? r.shares.toFixed(4) : r.shares}
+                </td>
                 <td className="py-2 pr-4 text-right tabular-nums text-slate-700 dark:text-slate-200">
                   {r.cost > 0 ? `${fmt(r.cost)} $` : "—"}
                 </td>
@@ -123,9 +138,9 @@ export function PortfolioSimulator({ config, prices }: Props) {
           <p className={`font-bold ${titresSansPosition > 0 ? "text-red-500" : "text-green-500"}`}>{titresSansPosition}</p>
         </div>
       </div>
-      {titresSansPosition > 0 && (
+      {!fractional && titresSansPosition > 0 && (
         <p className="text-slate-400 dark:text-slate-500 text-xs mt-3">
-          ✗ = budget insuffisant pour acheter au moins 1 action. Augmentez le budget ou utilisez un courtier offrant des fractions d'actions.
+          ✗ = budget insuffisant pour acheter au moins 1 action. Augmentez le budget ou activez les fractions d'actions.
         </p>
       )}
     </div>
