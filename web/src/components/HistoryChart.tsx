@@ -38,17 +38,15 @@ function cutoffDate(period: Period): string | null {
 
 function formatDate(dateStr: string, period: Period) {
   const d = new Date(dateStr + "T00:00:00");
-  if (period === "3M" || period === "6M") {
-    return d.toLocaleDateString("fr-CA", { day: "numeric", month: "short" });
-  }
+  if (period === "3M" || period === "6M") return d.toLocaleDateString("fr-CA", { day: "numeric", month: "short" });
   return d.toLocaleDateString("fr-CA", { month: "short", year: "2-digit" });
 }
 
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string; color: string }[]; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm shadow-xl">
-      <p className="text-slate-400 mb-1">{label}</p>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm shadow-xl">
+      <p className="text-slate-500 mb-1">{label}</p>
       {payload.map((p) => (
         <p key={p.name} style={{ color: p.color }} className="font-bold text-base">{p.name} : {p.value.toFixed(2)} pts</p>
       ))}
@@ -85,14 +83,14 @@ export function HistoryChart({ history, variant, period, onPeriodChange }: Props
   const perfPct = !compareMode && first && last ? ((last.value - first.value) / first.value) * 100 : null;
 
   return (
-    <div className="bg-slate-800 rounded-2xl p-6 mb-6">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 mb-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
-          <h2 className="text-slate-200 font-semibold text-lg">
+          <h2 className="text-slate-800 dark:text-slate-200 font-semibold text-lg">
             {compareMode ? "Comparaison PR vs TR" : `Historique NORDIQ-20 ${variant.toUpperCase()}`}
           </h2>
           {perfPct !== null && (
-            <p className={`text-sm font-medium mt-0.5 ${perfPct >= 0 ? "text-green-400" : "text-red-400"}`}>
+            <p className={`text-sm font-medium mt-0.5 ${perfPct >= 0 ? "text-green-500" : "text-red-500"}`}>
               {perfPct >= 0 ? "+" : ""}{perfPct.toFixed(2)}% sur la période
             </p>
           )}
@@ -103,7 +101,7 @@ export function HistoryChart({ history, variant, period, onPeriodChange }: Props
             className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
               compareMode
                 ? "bg-purple-600 text-white"
-                : "bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-200"
+                : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600"
             }`}
           >
             PR vs TR
@@ -116,7 +114,7 @@ export function HistoryChart({ history, variant, period, onPeriodChange }: Props
                 className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                   period === p
                     ? "bg-blue-600 text-white"
-                    : "bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-slate-200"
+                    : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600"
                 }`}
               >
                 {p}
@@ -129,47 +127,20 @@ export function HistoryChart({ history, variant, period, onPeriodChange }: Props
       <ResponsiveContainer width="100%" height={320}>
         <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-          <XAxis
-            dataKey="date"
-            ticks={ticks}
-            tickFormatter={(v) => formatDate(v, period)}
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
-            axisLine={{ stroke: "#334155" }}
-            tickLine={false}
-          />
-          <YAxis
-            domain={[min - padding, max + padding]}
-            tickFormatter={(v: number) => v.toFixed(0)}
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-            width={60}
-          />
+          <XAxis dataKey="date" ticks={ticks} tickFormatter={(v) => formatDate(v, period)} tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={{ stroke: "#334155" }} tickLine={false} />
+          <YAxis domain={[min - padding, max + padding]} tickFormatter={(v: number) => v.toFixed(0)} tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={false} tickLine={false} width={60} />
           <Tooltip content={<CustomTooltip />} />
           {period === "MAX" && (
-            <ReferenceLine
-              y={1000}
-              stroke="#475569"
-              strokeDasharray="4 4"
-              label={{ value: "Base 1000", fill: "#64748b", fontSize: 11 }}
-            />
+            <ReferenceLine y={1000} stroke="#475569" strokeDasharray="4 4" label={{ value: "Base 1000", fill: "#64748b", fontSize: 11 }} />
           )}
           {compareMode ? (
             <>
-              <Legend formatter={(v) => <span style={{ color: "#cbd5e1", fontSize: 12 }}>{v}</span>} />
+              <Legend formatter={(v) => <span style={{ color: "#94a3b8", fontSize: 12 }}>{v}</span>} />
               <Line type="monotone" dataKey="PR" stroke="#3b82f6" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
               <Line type="monotone" dataKey="TR" stroke="#22c55e" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
             </>
           ) : (
-            <Line
-              type="monotone"
-              dataKey="value"
-              name={variant.toUpperCase()}
-              stroke="#3b82f6"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4, fill: "#3b82f6" }}
-            />
+            <Line type="monotone" dataKey="value" name={variant.toUpperCase()} stroke="#3b82f6" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#3b82f6" }} />
           )}
         </LineChart>
       </ResponsiveContainer>

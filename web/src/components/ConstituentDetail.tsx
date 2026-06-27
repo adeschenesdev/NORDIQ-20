@@ -92,30 +92,30 @@ export function ConstituentDetail({ constituent, prices, period, indexValue, onC
   const yahooUrl = `https://finance.yahoo.com/quote/${encodeURIComponent(ticker)}`;
 
   return (
-    <div className="bg-slate-750 border border-slate-600 rounded-2xl p-5 mb-4 animate-fade-in" style={{ background: "#1a2538" }}>
+    <div className="bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-600 rounded-2xl p-5 mb-4">
       {/* En-tête */}
       <div className="flex items-start justify-between mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-slate-100 font-bold text-lg">{name}</h3>
-            <span className="font-mono text-blue-400 text-xs bg-blue-950/50 px-2 py-0.5 rounded">
+            <h3 className="text-slate-800 dark:text-slate-100 font-bold text-lg">{name}</h3>
+            <span className="font-mono text-blue-500 text-xs bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded">
               {ticker}
             </span>
           </div>
-          <p className="text-slate-400 text-sm">{sector} · Poids cible : {(weight * 100).toFixed(1)}%</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">{sector} · Poids cible : {(weight * 100).toFixed(1)}%</p>
         </div>
         <div className="flex items-center gap-3">
           <a
             href={yahooUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2"
+            className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2"
           >
             Yahoo Finance ↗
           </a>
           <button
             onClick={onClose}
-            className="text-slate-500 hover:text-slate-300 text-xl leading-none"
+            className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 text-xl leading-none"
             aria-label="Fermer"
           >
             ×
@@ -125,38 +125,38 @@ export function ConstituentDetail({ constituent, prices, period, indexValue, onC
 
       {/* Métriques */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-        <div className="bg-slate-800 rounded-xl p-3">
-          <p className="text-slate-500 text-xs mb-1">Cours actuel</p>
-          <p className="text-slate-100 font-bold text-base">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-slate-500 dark:text-slate-500 text-xs mb-1">Cours actuel</p>
+          <p className="text-slate-800 dark:text-slate-100 font-bold text-base">
             {currentPrice != null ? `${fmt(currentPrice)} $` : "—"}
           </p>
         </div>
-        <div className="bg-slate-800 rounded-xl p-3">
-          <p className="text-slate-500 text-xs mb-1">Rendement période</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-slate-500 dark:text-slate-500 text-xs mb-1">Rendement période</p>
           <p className="text-base font-bold">{perfPeriod != null ? pctBadge(perfPeriod) : "—"}</p>
         </div>
-        <div className="bg-slate-800 rounded-xl p-3">
-          <p className="text-slate-500 text-xs mb-1">Rendement YTD</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-slate-500 dark:text-slate-500 text-xs mb-1">Rendement YTD</p>
           <p className="text-base font-bold">{perfYTD != null ? pctBadge(perfYTD) : "—"}</p>
         </div>
-        <div className="bg-slate-800 rounded-xl p-3">
-          <p className="text-slate-500 text-xs mb-1">Rendement depuis t0</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-3">
+          <p className="text-slate-500 dark:text-slate-500 text-xs mb-1">Rendement depuis t0</p>
           <p className="text-base font-bold">{perfT0 != null ? pctBadge(perfT0) : "—"}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
-        <div className="bg-slate-800 rounded-xl p-3 md:col-span-1">
-          <p className="text-slate-500 text-xs mb-1">Contribution (pts)</p>
-          <p className="text-slate-100 font-bold text-base">{fmt(contribution)} pts</p>
-          <p className="text-slate-500 text-xs mt-1">{(weight * 100).toFixed(1)}% × {fmt(indexValue)} pts</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-3 md:col-span-1">
+          <p className="text-slate-500 dark:text-slate-500 text-xs mb-1">Contribution (pts)</p>
+          <p className="text-slate-800 dark:text-slate-100 font-bold text-base">{fmt(contribution)} pts</p>
+          <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">{(weight * 100).toFixed(1)}% × {fmt(indexValue)} pts</p>
         </div>
       </div>
 
       {/* Mini-graphique */}
       {chartData.length > 1 ? (
         <div>
-          <p className="text-slate-500 text-xs mb-2">Cours (CAD) — période sélectionnée</p>
+          <p className="text-slate-500 dark:text-slate-500 text-xs mb-2">Cours (CAD) — période sélectionnée</p>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#2d3f55" />
@@ -189,9 +189,9 @@ export function ConstituentDetail({ constituent, prices, period, indexValue, onC
           </ResponsiveContainer>
         </div>
       ) : (
-        <p className="text-slate-600 text-sm text-center py-4">
+        <p className="text-slate-500 dark:text-slate-600 text-sm text-center py-4">
           Données insuffisantes pour la période sélectionnée.
-          Lancez <code className="bg-slate-800 px-1 rounded">npm run backfill</code> avec une date antérieure.
+          Lancez <code className="bg-slate-200 dark:bg-slate-800 px-1 rounded">npm run backfill</code> avec une date antérieure.
         </p>
       )}
     </div>
