@@ -30,7 +30,8 @@ export function RebalancingDashboard({ config, prices, history, variant }: Props
     const targetWeight = config.weights[c.ticker] ?? c.weight;
     const units = config.units[c.ticker] ?? 0;
     const price = lastDate ? prices[lastDate]?.[c.ticker] : undefined;
-    const effectiveWeight = price && indexValue > 0 ? (units * price) / indexValue : null;
+    const divisor = variant === "pr" ? config.divisor : (config.trDivisor ?? config.divisor);
+    const effectiveWeight = price && indexValue > 0 ? (units * price) / (divisor * indexValue) : null;
     const drift = effectiveWeight != null ? effectiveWeight - targetWeight : null;
     const driftAbs = drift != null ? Math.abs(drift) : null;
     const needsRebalance = driftAbs != null && driftAbs > DRIFT_THRESHOLD;
