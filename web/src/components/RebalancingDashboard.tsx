@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { IndexConfig, HistoryEntry } from "../hooks/useIndexData";
 import constituentsRaw from "../../../data/constituents.json";
 
@@ -17,9 +18,49 @@ interface Props {
   variant: "pr" | "tr";
 }
 
-const DRIFT_THRESHOLD = 0.02;
+const DRIFT_THRESHOLD = 0.10;
+
+function RebalanceModal({ onClose }: { onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+  const cmd = "npm run rebalance";
+
+  function handleCopy() {
+    navigator.clipboard.writeText(cmd).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-slate-800 dark:text-slate-100 font-bold text-base">Rééquilibrer l'indice</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-xl leading-none">×</button>
+        </div>
+        <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+          <p>Cette opération recalcule les unités <code className="bg-slate-100 dark:bg-slate-900 px-1 rounded text-xs">q_i</code> et le diviseur <code className="bg-slate-100 dark:bg-slate-900 px-1 rounded text-xs">D</code> aux prix actuels pour que chaque titre retrouve son poids cible.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs">La valeur de l'indice reste continue — aucun saut dans l'historique.</p>
+          <p>Lancez cette commande depuis la racine du projet :</p>
+          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 rounded-lg px-4 py-3">
+            <code className="text-blue-600 dark:text-blue-300 text-sm flex-1">{cmd}</code>
+            <button
+              onClick={handleCopy}
+              className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-2 py-1 rounded transition-colors"
+            >
+              {copied ? "✓ Copié" : "Copier"}
+            </button>
+          </div>
+          <p className="text-slate-400 dark:text-slate-500 text-xs">Après exécution, lancez <code className="bg-slate-100 dark:bg-slate-900 px-1 rounded">git push</code> pour mettre à jour le site.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function RebalancingDashboard({ config, prices, history, variant }: Props) {
+  const [showModal, setShowModal] = useState(false);
   const last = history[history.length - 1];
   if (!last) return null;
 
@@ -43,59 +84,70 @@ export function RebalancingDashboard({ config, prices, history, variant }: Props
   const needsAction = overweighted.length + underweighted.length;
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 mb-6 shadow-sm">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-slate-800 dark:text-slate-200 font-semibold text-lg">Tableau de bord de rééquilibrage</h2>
-        {needsAction > 0 ? (
-          <span className="text-xs bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border border-yellow-300 dark:border-yellow-500/30 px-3 py-1 rounded-full">
-            {needsAction} titre{needsAction > 1 ? "s" : ""} à rééquilibrer
-          </span>
-        ) : (
-          <span className="text-xs bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-500/30 px-3 py-1 rounded-full">
-            Portefeuille équilibré
-          </span>
-        )}
-      </div>
-      <p className="text-slate-400 dark:text-slate-500 text-xs mb-5">
-        Dérive &gt; {(DRIFT_THRESHOLD * 100).toFixed(0)}% → rééquilibrage suggéré · Poids effectif = unités × cours / valeur indice
-      </p>
-
-      <div className="space-y-2">
-        {rows.map((r) => {
-          const drift = r.drift ?? 0;
-          const effective = r.effectiveWeight ?? r.targetWeight;
-          const barWidth = Math.min(Math.abs(drift) / DRIFT_THRESHOLD, 1) * 100;
-          return (
-            <div key={r.ticker} className="grid grid-cols-[1fr_auto_auto_120px] md:grid-cols-[1fr_80px_80px_160px] items-center gap-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="font-mono text-blue-500 text-xs bg-blue-50 dark:bg-blue-950/50 px-1.5 py-0.5 rounded shrink-0">{r.ticker}</span>
-                <span className="text-slate-600 dark:text-slate-300 text-sm truncate hidden sm:block">{r.name}</span>
-              </div>
-              <span className="text-right text-slate-400 dark:text-slate-400 text-xs tabular-nums">{(r.targetWeight * 100).toFixed(0)}%</span>
-              <span className={`text-right text-xs tabular-nums font-medium ${r.needsRebalance ? (drift > 0 ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400") : "text-slate-600 dark:text-slate-300"}`}>
-                {(effective * 100).toFixed(1)}%
+    <>
+      {showModal && <RebalanceModal onClose={() => setShowModal(false)} />}
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 mb-6 shadow-sm">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-slate-800 dark:text-slate-200 font-semibold text-lg">Tableau de bord de rééquilibrage</h2>
+          <div className="flex items-center gap-2">
+            {needsAction > 0 ? (
+              <span className="text-xs bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border border-yellow-300 dark:border-yellow-500/30 px-3 py-1 rounded-full">
+                {needsAction} titre{needsAction > 1 ? "s" : ""} à rééquilibrer
               </span>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${r.needsRebalance ? (drift > 0 ? "bg-yellow-400" : "bg-blue-400") : "bg-slate-400 dark:bg-slate-500"}`}
-                    style={{ width: `${barWidth}%` }}
-                  />
-                </div>
-                <span className={`text-xs tabular-nums w-14 text-right ${r.needsRebalance ? (drift > 0 ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400") : "text-slate-400 dark:text-slate-500"}`}>
-                  {drift >= 0 ? "+" : ""}{(drift * 100).toFixed(1)}%
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            ) : (
+              <span className="text-xs bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-500/30 px-3 py-1 rounded-full">
+                Indice équilibré
+              </span>
+            )}
+            <button
+              onClick={() => setShowModal(true)}
+              className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-1 rounded-lg transition-colors"
+            >
+              Rééquilibrer…
+            </button>
+          </div>
+        </div>
+        <p className="text-slate-400 dark:text-slate-500 text-xs mb-5">
+          Dérive &gt; {(DRIFT_THRESHOLD * 100).toFixed(0)}% → rééquilibrage suggéré · Poids effectif = unités × cours / (diviseur × valeur indice)
+        </p>
 
-      <div className="flex gap-4 mt-5 text-xs text-slate-400 dark:text-slate-500">
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />Surpondéré</span>
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />Sous-pondéré</span>
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500 inline-block" />Dans la cible</span>
+        <div className="space-y-2">
+          {rows.map((r) => {
+            const drift = r.drift ?? 0;
+            const effective = r.effectiveWeight ?? r.targetWeight;
+            const barWidth = Math.min(Math.abs(drift) / DRIFT_THRESHOLD, 1) * 100;
+            return (
+              <div key={r.ticker} className="grid grid-cols-[1fr_auto_auto_120px] md:grid-cols-[1fr_80px_80px_160px] items-center gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-mono text-blue-500 text-xs bg-blue-50 dark:bg-blue-950/50 px-1.5 py-0.5 rounded shrink-0">{r.ticker}</span>
+                  <span className="text-slate-600 dark:text-slate-300 text-sm truncate hidden sm:block">{r.name}</span>
+                </div>
+                <span className="text-right text-slate-400 text-xs tabular-nums">{(r.targetWeight * 100).toFixed(0)}%</span>
+                <span className={`text-right text-xs tabular-nums font-medium ${r.needsRebalance ? (drift > 0 ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400") : "text-slate-600 dark:text-slate-300"}`}>
+                  {(effective * 100).toFixed(1)}%
+                </span>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${r.needsRebalance ? (drift > 0 ? "bg-yellow-400" : "bg-blue-400") : "bg-slate-400 dark:bg-slate-500"}`}
+                      style={{ width: `${barWidth}%` }}
+                    />
+                  </div>
+                  <span className={`text-xs tabular-nums w-14 text-right ${r.needsRebalance ? (drift > 0 ? "text-yellow-600 dark:text-yellow-400" : "text-blue-600 dark:text-blue-400") : "text-slate-400 dark:text-slate-500"}`}>
+                    {drift >= 0 ? "+" : ""}{(drift * 100).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex gap-4 mt-5 text-xs text-slate-400 dark:text-slate-500">
+          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />Surpondéré</span>
+          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />Sous-pondéré</span>
+          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500 inline-block" />Dans la cible</span>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
