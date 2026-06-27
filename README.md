@@ -1,4 +1,4 @@
-# NORDIQ-20 — Indice Canadien de Qualité
+# NORDIQ-20 — Indice Canadien
 
 Application web locale qui affiche, conserve et met à jour l'NORDIQ-20, un indice boursier pancanadien de 19 constituants sélectionnés par secteur GICS selon leur rendement total sur 3 ans.
 

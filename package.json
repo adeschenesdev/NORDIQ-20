@@ -2,7 +2,7 @@
   "name": "NORDIQ20",
   "version": "1.0.0",
   "private": true,
-  "description": "NORDIQ-20 — Indice Canadien de Qualité",
+  "description": "NORDIQ-20 — Indice Canadien",
   "type": "module",
   "scripts": {
     "update": "tsx src/scripts/update.ts",
