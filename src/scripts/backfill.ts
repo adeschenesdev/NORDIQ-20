@@ -7,7 +7,7 @@
  */
 import constituentsConfig from "../../data/constituents.json" with { type: "json" };
 import { fetchAllHistory } from "../data/fetch.js";
-import { loadStore, saveStore, upsertEntry } from "../data/store.js";
+import { loadStore, saveStore, upsertEntry, dataPathFor } from "../data/store.js";
 import { initializeIndex, calculateIndex } from "../engine/index.js";
 import type { Constituent } from "../engine/index.js";
 
@@ -18,14 +18,19 @@ const tickers = constituents.map((c) => c.ticker);
 const args = process.argv.slice(2);
 const fromIdx = find(args, "--from");
 const fromArg = fromIdx >= 0 ? args[fromIdx + 1] : undefined;
+const nameIdx = find(args, "--name");
+const nameArg = nameIdx >= 0 ? args[nameIdx + 1] : undefined;
 const resetFlag = args.includes("--reset");
 
 function find(arr: string[], val: string) {
   return arr.indexOf(val);
 }
 
-// Date de début par défaut : 2022-01-03 (premier jour ouvrable disponible)
-const DEFAULT_T0 = "2022-01-03";
+const dataPath = dataPathFor(nameArg);
+
+// Date de base par défaut = inception de l'indice live (page principale).
+// Le backtest 5 ans est généré explicitement avec --from 2021-06-30 (cf. npm run backfill:backtest).
+const DEFAULT_T0 = "2026-06-01";
 const fromDate = new Date(fromArg ?? DEFAULT_T0);
 const toDate = new Date();
 toDate.setHours(23, 59, 59);
@@ -34,7 +39,7 @@ console.log(`\n=== NORDIQ-20 Backfill ===`);
 console.log(`Période : ${fromDate.toISOString().slice(0, 10)} → aujourd'hui`);
 console.log(`Constituants : ${tickers.length}\n`);
 
-const store = loadStore();
+const store = loadStore(dataPath);
 let needsInit = resetFlag || !store.config.t0 || !store.config.divisor;
 
 // --reset : vider l'historique et les prix existants pour repartir proprement
@@ -115,8 +120,8 @@ for (const date of sortedDates) {
   }
 }
 
-console.log(`\n\nSauvegarde de data.json…`);
-saveStore(store);
+console.log(`\n\nSauvegarde de ${dataPath}…`);
+saveStore(store, dataPath);
 
 const first = store.history[0];
 const last = store.history[store.history.length - 1];

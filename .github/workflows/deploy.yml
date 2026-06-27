@@ -34,8 +34,10 @@ jobs:
       - name: Build Vite
         run: npm run build --workspace=web
 
-      - name: Copier data.json dans dist
-        run: cp data/data.json web/dist/data.json
+      - name: Copier les données dans dist
+        run: |
+          cp data/data.json web/dist/data.json
+          cp data/data-backtest.json web/dist/data-backtest.json
 
       - uses: actions/configure-pages@v5
 

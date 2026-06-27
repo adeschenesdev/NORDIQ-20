@@ -4,7 +4,9 @@ import tailwindcss from "@tailwindcss/vite";
 import { resolve, join } from "path";
 import { createReadStream, existsSync } from "fs";
 
-const DATA_FILE = resolve(__dirname, "../data/data.json");
+const DATA_DIR = resolve(__dirname, "../data");
+// N'autorise que les fichiers data*.json (ex. data.json, data-backtest.json)
+const DATA_FILE_RE = /^\/(data(?:-[a-z0-9-]+)?\.json)$/i;
 
 export default defineConfig({
   plugins: [
@@ -13,14 +15,19 @@ export default defineConfig({
     {
       name: "serve-data-json",
       configureServer(server) {
-        server.middlewares.use("/data.json", (_req, res) => {
-          if (!existsSync(DATA_FILE)) {
+        server.middlewares.use((req, res, next) => {
+          const path = (req.url ?? "").split("?")[0];
+          const match = DATA_FILE_RE.exec(path);
+          if (!match) return next();
+
+          const file = resolve(DATA_DIR, match[1]);
+          if (!existsSync(file)) {
             res.writeHead(404, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: "data.json not found" }));
+            res.end(JSON.stringify({ error: `${match[1]} not found` }));
             return;
           }
           res.setHeader("Content-Type", "application/json");
-          createReadStream(DATA_FILE).pipe(res);
+          createReadStream(file).pipe(res);
         });
       },
     },
