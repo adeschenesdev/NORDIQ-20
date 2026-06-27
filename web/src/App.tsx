@@ -9,8 +9,12 @@ import { PortfolioSimulator } from "./components/PortfolioSimulator";
 import { RebalancingDashboard } from "./components/RebalancingDashboard";
 import { AboutModal } from "./components/AboutModal";
 
+type IndexKey = "live" | "backtest";
+
 export default function App() {
-  const { data, error, loading } = useIndexData();
+  const [activeIndex, setActiveIndex] = useState<IndexKey>("live");
+  const dataUrl = activeIndex === "backtest" ? "./data-backtest.json" : "./data.json";
+  const { data, error, loading } = useIndexData(dataUrl);
   const [variant, setVariant] = useState<"pr" | "tr">("pr");
   const [period, setPeriod] = useState<Period>("1A");
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
@@ -25,20 +29,49 @@ export default function App() {
     }
   }, [lastEntry, variant]);
 
+  const tabBar = (
+    <div className="flex gap-2 mb-6">
+      {(
+        [
+          ["live", "NORDIQ-20"],
+          ["backtest", "Backtest 5 ans"],
+        ] as const
+      ).map(([key, label]) => (
+        <button
+          key={key}
+          onClick={() => setActiveIndex(key)}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+            activeIndex === key
+              ? "bg-blue-600 text-white"
+              : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
   if (loading) {
     return (
-      <div data-theme={theme} className="min-h-screen flex items-center justify-center text-slate-400 dark:text-slate-400 bg-slate-100 dark:bg-slate-900">
-        Chargement des données…
+      <div data-theme={theme} className="min-h-screen bg-slate-100 dark:bg-slate-900">
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          {tabBar}
+          <div className="text-slate-400 dark:text-slate-400 py-20 text-center">Chargement des données…</div>
+        </div>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div data-theme={theme} className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900">
-        <div className="text-center">
-          <p className="text-xl font-bold mb-2 text-red-500">Données indisponibles</p>
-          <p className="text-sm text-slate-500">{error ?? "data.json introuvable"}</p>
+      <div data-theme={theme} className="min-h-screen bg-slate-100 dark:bg-slate-900">
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          {tabBar}
+          <div className="text-center py-20">
+            <p className="text-xl font-bold mb-2 text-red-500">Données indisponibles</p>
+            <p className="text-sm text-slate-500">{error ?? "data.json introuvable"}</p>
+          </div>
         </div>
       </div>
     );
@@ -52,6 +85,18 @@ export default function App() {
     <div data-theme={theme} className="min-h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
       <div className="max-w-5xl mx-auto px-4 py-8">
+        {tabBar}
+        {activeIndex === "backtest" && (
+          <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 rounded-2xl px-5 py-4 mb-6 text-sm">
+            <p className="font-semibold mb-1">⚠ Historique reconstitué (backtest)</p>
+            <p>
+              Cette vue applique <strong>rétroactivement</strong> les 19 constituants actuels depuis 2021.
+              Les sociétés ayant été choisies en sachant lesquelles ont réussi, la performance passée est
+              embellie par le <strong>biais du survivant</strong>. À titre illustratif uniquement : ce n'est
+              pas la performance réelle qu'aurait eue l'indice à l'époque.
+            </p>
+          </div>
+        )}
         <IndexHeader
           history={data.history}
           variant={variant}

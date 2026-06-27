@@ -7,14 +7,19 @@
  */
 import constituentsConfig from "../../data/constituents.json" with { type: "json" };
 import { fetchTodayPrices } from "../data/fetch.js";
-import { loadStore, saveStore, upsertEntry } from "../data/store.js";
+import { loadStore, saveStore, upsertEntry, dataPathFor } from "../data/store.js";
 import { calculateIndex } from "../engine/index.js";
 import type { Constituent } from "../engine/index.js";
 
 const constituents = constituentsConfig.constituents as Constituent[];
 const tickers = constituents.map((c) => c.ticker);
 
-const store = loadStore();
+const args = process.argv.slice(2);
+const nameIdx = args.indexOf("--name");
+const nameArg = nameIdx >= 0 ? args[nameIdx + 1] : undefined;
+const dataPath = dataPathFor(nameArg);
+
+const store = loadStore(dataPath);
 
 if (!store.config.t0 || !store.config.divisor) {
   console.error("data.json introuvable ou non initialisé. Lancez d'abord : npm run backfill");
@@ -48,7 +53,7 @@ const lastTR: Record<string, number> = lastPR;
 try {
   const result = calculateIndex(store.config, pricesPR, today, pricesTR, lastPR, lastTR);
   upsertEntry(store, { date: today, pr: result.pr, tr: result.tr }, result.pricesPR);
-  saveStore(store);
+  saveStore(store, dataPath);
 
   const prev = lastEntry;
   const deltaPR = prev ? result.pr - prev.pr : 0;
@@ -58,16 +63,17 @@ try {
   console.log(`  NORDIQ-20 PR : ${result.pr.toFixed(2)}  (${deltaPR >= 0 ? "+" : ""}${deltaPR.toFixed(2)} pts, ${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(2)}%)`);
   console.log(`  NORDIQ-20 TR : ${result.tr.toFixed(2)}`);
 
-  // Synchronise automatiquement web/dist/data.json si le dossier existe (site IIS)
+  // Synchronise automatiquement web/dist/<fichier> si le dossier existe (site IIS)
   try {
     const { copyFileSync, existsSync } = await import("fs");
-    const { join, dirname } = await import("path");
+    const { join, dirname, basename } = await import("path");
     const { fileURLToPath } = await import("url");
     const __dirname = dirname(fileURLToPath(import.meta.url));
-    const dist = join(__dirname, "../../web/dist/data.json");
+    const fileName = basename(dataPath);
+    const dist = join(__dirname, "../../web/dist", fileName);
     if (existsSync(join(__dirname, "../../web/dist"))) {
-      copyFileSync(join(__dirname, "../../data/data.json"), dist);
-      console.log("  ✓ web/dist/data.json synchronisé");
+      copyFileSync(dataPath, dist);
+      console.log(`  ✓ web/dist/${fileName} synchronisé`);
     }
   } catch {
     // Pas bloquant si dist/ n'existe pas encore

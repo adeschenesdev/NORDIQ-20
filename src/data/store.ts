@@ -4,7 +4,18 @@ import { fileURLToPath } from "url";
 import type { IndexConfig } from "../engine/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_PATH = join(__dirname, "../../data/data.json");
+const DATA_DIR = join(__dirname, "../../data");
+
+/**
+ * Chemin du fichier de données pour un indice donné.
+ * Sans nom → data/data.json (indice live, canonique).
+ * Avec nom → data/data-<name>.json (ex. data-backtest.json).
+ */
+export function dataPathFor(name?: string): string {
+  return join(DATA_DIR, name ? `data-${name}.json` : "data.json");
+}
+
+const DATA_PATH = dataPathFor();
 
 export interface HistoryEntry {
   date: string;
@@ -39,10 +50,10 @@ const EMPTY_STORE: DataStore = {
   },
 };
 
-export function loadStore(): DataStore {
-  if (!existsSync(DATA_PATH)) return structuredClone(EMPTY_STORE);
+export function loadStore(dataPath: string = DATA_PATH): DataStore {
+  if (!existsSync(dataPath)) return structuredClone(EMPTY_STORE);
   try {
-    const raw = JSON.parse(readFileSync(DATA_PATH, "utf-8")) as DataStore;
+    const raw = JSON.parse(readFileSync(dataPath, "utf-8")) as DataStore;
     // Compatibilité ascendante : data.json antérieur sans champ prices
     if (!raw.prices) raw.prices = {};
     return raw;
@@ -52,11 +63,11 @@ export function loadStore(): DataStore {
   }
 }
 
-export function saveStore(store: DataStore): void {
-  const dir = dirname(DATA_PATH);
+export function saveStore(store: DataStore, dataPath: string = DATA_PATH): void {
+  const dir = dirname(dataPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   store.meta.updatedAt = new Date().toISOString();
-  writeFileSync(DATA_PATH, JSON.stringify(store, null, 2), "utf-8");
+  writeFileSync(dataPath, JSON.stringify(store, null, 2), "utf-8");
 }
 
 /** Ajoute ou met à jour une entrée par date (idempotent). */

@@ -4,15 +4,22 @@
  * pour que le site IIS serve les données fraîches.
  */
 import { copyFileSync, existsSync } from "fs";
-import { join, dirname } from "path";
+import { join, dirname, basename } from "path";
 import { fileURLToPath } from "url";
+import { dataPathFor } from "../data/store.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const src  = join(__dirname, "../../data/data.json");
-const dest = join(__dirname, "../../web/dist/data.json");
+
+const args = process.argv.slice(2);
+const nameIdx = args.indexOf("--name");
+const nameArg = nameIdx >= 0 ? args[nameIdx + 1] : undefined;
+
+const src = dataPathFor(nameArg);
+const fileName = basename(src);
+const dest = join(__dirname, "../../web/dist", fileName);
 
 if (!existsSync(src)) {
-  console.error("data/data.json introuvable. Lancez d'abord : npm run backfill");
+  console.error(`${src} introuvable. Lancez d'abord : npm run backfill`);
   process.exit(1);
 }
 
@@ -22,4 +29,4 @@ if (!existsSync(join(__dirname, "../../web/dist"))) {
 }
 
 copyFileSync(src, dest);
-console.log(`✓ data.json synchronisé dans web/dist/`);
+console.log(`✓ ${fileName} synchronisé dans web/dist/`);

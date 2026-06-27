@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "update": "tsx src/scripts/update.ts",
+    "update:backtest": "tsx src/scripts/update.ts --name backtest",
     "backfill": "tsx src/scripts/backfill.ts",
+    "backfill:backtest": "tsx src/scripts/backfill.ts --name backtest --from 2021-06-30",
     "rebalance": "tsx src/scripts/rebalance.ts",
     "verify-tickers": "tsx src/scripts/verify-tickers.ts",
     "test": "vitest run",
@@ -14,7 +16,8 @@
     "dev": "npm run dev --workspace=web",
     "build": "npm run build --workspace=web",
     "build:local": "npm run build --workspace=web && tsx src/scripts/sync-dist.ts",
-    "sync-data": "tsx src/scripts/sync-dist.ts"
+    "sync-data": "tsx src/scripts/sync-dist.ts",
+    "sync-data:backtest": "tsx src/scripts/sync-dist.ts --name backtest"
   },
   "workspaces": [
     "web"

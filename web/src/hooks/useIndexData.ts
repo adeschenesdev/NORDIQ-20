@@ -22,25 +22,35 @@ export interface IndexData {
   meta: { updatedAt: string; source: string };
 }
 
-// En dev : servi par le middleware Vite à /data.json
-// En prod : data.json copié dans dist/ par le workflow CI
-const DATA_URL = "./data.json";
-
-export function useIndexData() {
+// En dev : servi par le middleware Vite (data.json, data-backtest.json, …)
+// En prod : fichiers copiés dans dist/ par le workflow CI
+export function useIndexData(dataUrl: string = "./data.json") {
   const [data, setData] = useState<IndexData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(DATA_URL)
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    fetch(dataUrl)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json() as Promise<IndexData>;
       })
-      .then(setData)
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
-  }, []);
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [dataUrl]);
 
   return { data, error, loading };
 }

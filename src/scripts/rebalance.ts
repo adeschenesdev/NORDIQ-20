@@ -7,14 +7,19 @@
  */
 import constituentsConfig from "../../data/constituents.json" with { type: "json" };
 import { fetchTodayPrices } from "../data/fetch.js";
-import { loadStore, saveStore } from "../data/store.js";
+import { loadStore, saveStore, dataPathFor } from "../data/store.js";
 import { rebalanceIndex } from "../engine/index.js";
 import type { Constituent } from "../engine/index.js";
 
 const constituents = constituentsConfig.constituents as Constituent[];
 const tickers = constituents.map((c) => c.ticker);
 
-const store = loadStore();
+const args = process.argv.slice(2);
+const nameIdx = args.indexOf("--name");
+const nameArg = nameIdx >= 0 ? args[nameIdx + 1] : undefined;
+const dataPath = dataPathFor(nameArg);
+
+const store = loadStore(dataPath);
 
 if (!store.config.t0 || !store.history.length) {
   console.error("data.json vide. Lancez d'abord : npm run backfill");
@@ -50,6 +55,6 @@ for (const [ticker, q] of Object.entries(newConfig.units)) {
 }
 
 store.config = newConfig;
-saveStore(store);
+saveStore(store, dataPath);
 
 console.log(`\n✓ Rééquilibrage effectué le ${today}. data.json mis à jour.`);
