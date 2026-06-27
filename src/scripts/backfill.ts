@@ -16,7 +16,8 @@ const tickers = constituents.map((c) => c.ticker);
 
 // Lecture des arguments
 const args = process.argv.slice(2);
-const fromArg = args[find(args, "--from") + 1];
+const fromIdx = find(args, "--from");
+const fromArg = fromIdx >= 0 ? args[fromIdx + 1] : undefined;
 const resetFlag = args.includes("--reset");
 
 function find(arr: string[], val: string) {
