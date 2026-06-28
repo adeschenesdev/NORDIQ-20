@@ -6,6 +6,7 @@
  * (sauf si --reset est passé). Les dates déjà présentes sont écrasées (idempotent).
  */
 import { fetchAllHistory } from "../data/fetch.js";
+import { convertHistoryToCad } from "../data/fx.js";
 import { loadStore, saveStore, upsertEntry, dataPathFor, loadConstituents } from "../data/store.js";
 import { initializeIndex, calculateIndex } from "../engine/index.js";
 
@@ -48,6 +49,9 @@ if (resetFlag) {
 // Récupération de l'historique complet
 console.log("Récupération des données Yahoo Finance…\n");
 const byDate = await fetchAllHistory(tickers, fromDate, toDate);
+
+// Indices multi-devises : convertir les titres US en CAD (no-op si tout est en .TO)
+await convertHistoryToCad(byDate, tickers, fromDate, toDate);
 
 const sortedDates = Array.from(byDate.keys()).sort();
 if (sortedDates.length === 0) {

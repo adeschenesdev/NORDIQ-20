@@ -10,16 +10,18 @@ import { RebalancingDashboard } from "./components/RebalancingDashboard";
 import { AboutModal } from "./components/AboutModal";
 
 const INDICES = [
-  { key: "live", label: "NORDIQ-20", url: "./data.json" },
-  { key: "revised", label: "NORDIQ-20 Révisé", url: "./data-revised.json" },
-  { key: "backtest", label: "Backtest 5 ans", url: "./data-backtest.json" },
+  { key: "live", label: "NORDIQ-20", name: "NORDIQ-20", subtitle: "Indice canadien", url: "./data.json" },
+  { key: "revised", label: "NORDIQ-20 Révisé", name: "NORDIQ-20 Révisé", subtitle: "Indice canadien", url: "./data-revised.json" },
+  { key: "na", label: "NORDAM-30", name: "NORDAM-30", subtitle: "Indice nord-américain", url: "./data-na.json" },
+  { key: "backtest", label: "Backtest 5 ans", name: "NORDIQ-20", subtitle: "Backtest 5 ans", url: "./data-backtest.json" },
 ] as const;
 
 type IndexKey = (typeof INDICES)[number]["key"];
 
 export default function App() {
   const [activeIndex, setActiveIndex] = useState<IndexKey>("live");
-  const dataUrl = INDICES.find((i) => i.key === activeIndex)!.url;
+  const active = INDICES.find((i) => i.key === activeIndex)!;
+  const dataUrl = active.url;
   const { data, error, loading } = useIndexData(dataUrl);
   const [variant, setVariant] = useState<"pr" | "tr">("pr");
   const [period, setPeriod] = useState<Period>("1A");
@@ -31,9 +33,9 @@ export default function App() {
   useEffect(() => {
     if (lastEntry) {
       const val = variant === "pr" ? lastEntry.pr : lastEntry.tr;
-      document.title = `NORDIQ-20 ${variant.toUpperCase()}: ${val.toFixed(2)} pts`;
+      document.title = `${active.name} ${variant.toUpperCase()}: ${val.toFixed(2)} pts`;
     }
-  }, [lastEntry, variant]);
+  }, [lastEntry, variant, active.name]);
 
   const tabBar = (
     <div className="flex flex-wrap gap-2 mb-6">
@@ -109,15 +111,28 @@ export default function App() {
             </p>
           </div>
         )}
+        {activeIndex === "na" && (
+          <div className="bg-purple-50 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-800/60 text-purple-800 dark:text-purple-300 rounded-2xl px-5 py-4 mb-6 text-sm">
+            <p className="font-semibold mb-1">🌎 NORDAM-30 — indice nord-américain (Canada + USA)</p>
+            <p>
+              <strong>30 titres</strong> canadiens et américains sélectionnés par le même score mixte
+              <strong> rendement YTD 2026 + rendement total 3 ans</strong>. Tous les cours sont
+              <strong> convertis en CAD</strong> (taux USD/CAD historique), donc la performance inclut le
+              change. Lancé le 1ᵉʳ juin 2026 à 1000 points, à titre comparatif.
+            </p>
+          </div>
+        )}
         <IndexHeader
           history={data.history}
+          name={active.name}
+          subtitle={active.subtitle}
           variant={variant}
           onVariantChange={setVariant}
           onAboutClick={() => setShowAbout(true)}
           theme={theme}
           onThemeToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
         />
-        <HistoryChart history={data.history} variant={variant} period={period} onPeriodChange={setPeriod} />
+        <HistoryChart history={data.history} name={active.name} variant={variant} period={period} onPeriodChange={setPeriod} />
         <div className="grid grid-cols-1 gap-6">
           <ConstituentTable
             history={data.history}

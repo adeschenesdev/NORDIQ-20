@@ -8,11 +8,14 @@
     "update": "tsx src/scripts/update.ts",
     "update:backtest": "tsx src/scripts/update.ts --name backtest",
     "update:revised": "tsx src/scripts/update.ts --name revised",
+    "update:na": "tsx src/scripts/update.ts --name na",
     "backfill": "tsx src/scripts/backfill.ts",
     "backfill:backtest": "tsx src/scripts/backfill.ts --name backtest --from 2021-06-30",
     "backfill:revised": "tsx src/scripts/backfill.ts --name revised",
+    "backfill:na": "tsx src/scripts/backfill.ts --name na",
     "rebalance": "tsx src/scripts/rebalance.ts",
     "screen": "tsx src/scripts/screen.ts",
+    "screen:na": "tsx src/scripts/screen.ts --na",
     "verify-tickers": "tsx src/scripts/verify-tickers.ts",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -21,7 +24,8 @@
     "build:local": "npm run build --workspace=web && tsx src/scripts/sync-dist.ts",
     "sync-data": "tsx src/scripts/sync-dist.ts",
     "sync-data:backtest": "tsx src/scripts/sync-dist.ts --name backtest",
-    "sync-data:revised": "tsx src/scripts/sync-dist.ts --name revised"
+    "sync-data:revised": "tsx src/scripts/sync-dist.ts --name revised",
+    "sync-data:na": "tsx src/scripts/sync-dist.ts --name na"
   },
   "workspaces": [
     "web"

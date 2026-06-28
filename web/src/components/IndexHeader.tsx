@@ -2,6 +2,8 @@ import type { HistoryEntry } from "../hooks/useIndexData";
 
 interface Props {
   history: HistoryEntry[];
+  name: string;
+  subtitle: string;
   variant: "pr" | "tr";
   onVariantChange: (v: "pr" | "tr") => void;
   onAboutClick?: () => void;
@@ -9,7 +11,7 @@ interface Props {
   onThemeToggle?: () => void;
 }
 
-export function IndexHeader({ history, variant, onVariantChange, onAboutClick, theme, onThemeToggle }: Props) {
+export function IndexHeader({ history, name, subtitle, variant, onVariantChange, onAboutClick, theme, onThemeToggle }: Props) {
   const last = history[history.length - 1];
   const prev = history[history.length - 2];
 
@@ -31,7 +33,7 @@ export function IndexHeader({ history, variant, onVariantChange, onAboutClick, t
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-widest mb-1">
-            NORDIQ-20 — Indice Canadien
+            {name} — {subtitle}
           </h1>
           <div className="flex items-baseline gap-3">
             <span className="text-5xl font-bold text-slate-900 dark:text-white tabular-nums">
@@ -85,7 +87,7 @@ export function IndexHeader({ history, variant, onVariantChange, onAboutClick, t
                     : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
                 }`}
               >
-                NORDIQ-20 {v.toUpperCase()}
+                {name} {v.toUpperCase()}
               </button>
             ))}
           </div>
