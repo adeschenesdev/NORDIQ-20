@@ -1,8 +1,11 @@
 import yf from "../data/yf.js";
-import constituentsConfig from "../../data/constituents.json" with { type: "json" };
+import { loadConstituents } from "../data/store.js";
 
+const args = process.argv.slice(2);
+const nameIdx = args.indexOf("--name");
+const nameArg = nameIdx >= 0 ? args[nameIdx + 1] : undefined;
 
-const tickers = constituentsConfig.constituents.map((c) => c.ticker);
+const tickers = loadConstituents(nameArg).map((c) => c.ticker);
 
 console.log(`Vérification de ${tickers.length} tickers Yahoo Finance...\n`);
 

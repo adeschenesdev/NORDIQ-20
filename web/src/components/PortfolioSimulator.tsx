@@ -1,18 +1,9 @@
 import { useState } from "react";
-import type { IndexConfig } from "../hooks/useIndexData";
-import constituentsRaw from "../../../data/constituents.json";
-
-interface Constituent {
-  ticker: string;
-  name: string;
-  sector: string;
-  weight: number;
-}
-
-const constituents = (constituentsRaw as { constituents: Constituent[] }).constituents;
+import type { IndexConfig, Constituent } from "../hooks/useIndexData";
 
 interface Props {
   config: IndexConfig;
+  constituents: Constituent[];
   prices: Record<string, Record<string, number>>;
 }
 
@@ -20,7 +11,7 @@ function fmt(n: number) {
   return n.toLocaleString("fr-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export function PortfolioSimulator({ config, prices }: Props) {
+export function PortfolioSimulator({ config, constituents, prices }: Props) {
   const [budget, setBudget] = useState(10000);
   const [fractional, setFractional] = useState(false);
 

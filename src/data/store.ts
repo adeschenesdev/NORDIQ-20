@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import type { IndexConfig } from "../engine/index.js";
+import type { IndexConfig, Constituent } from "../engine/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "../../data");
@@ -17,6 +17,26 @@ export function dataPathFor(name?: string): string {
 
 const DATA_PATH = dataPathFor();
 
+/**
+ * Chemin du fichier de constituants pour un indice donné.
+ * La « composition » est le nom sans suffixe de période : `revised-backtest` et
+ * `revised` partagent `constituents-revised.json` ; `backtest` et le défaut partagent
+ * `constituents.json`. Repli sur `constituents.json` si le fichier nommé est absent.
+ */
+export function constituentsPathFor(name?: string): string {
+  const composition = (name ?? "").replace(/-?backtest$/, "");
+  const file = composition ? `constituents-${composition}.json` : "constituents.json";
+  const candidate = join(DATA_DIR, file);
+  return existsSync(candidate) ? candidate : join(DATA_DIR, "constituents.json");
+}
+
+/** Charge la liste des constituants pour un indice (selon sa composition). */
+export function loadConstituents(name?: string): Constituent[] {
+  const path = constituentsPathFor(name);
+  const raw = JSON.parse(readFileSync(path, "utf-8")) as { constituents: Constituent[] };
+  return raw.constituents;
+}
+
 export interface HistoryEntry {
   date: string;
   pr: number;
@@ -25,6 +45,8 @@ export interface HistoryEntry {
 
 export interface DataStore {
   config: IndexConfig;
+  /** Métadonnées des constituants (ticker, name, sector, weight) — rend le web autonome. */
+  constituents: Constituent[];
   history: HistoryEntry[];
   /** Cours de clôture bruts par date et par ticker : prices[date][ticker] = close */
   prices: Record<string, Record<string, number>>;
@@ -42,6 +64,7 @@ const EMPTY_STORE: DataStore = {
     units: {},
     weights: {},
   },
+  constituents: [],
   history: [],
   prices: {},
   meta: {
@@ -54,8 +77,9 @@ export function loadStore(dataPath: string = DATA_PATH): DataStore {
   if (!existsSync(dataPath)) return structuredClone(EMPTY_STORE);
   try {
     const raw = JSON.parse(readFileSync(dataPath, "utf-8")) as DataStore;
-    // Compatibilité ascendante : data.json antérieur sans champ prices
+    // Compatibilité ascendante : data.json antérieur sans champ prices/constituents
     if (!raw.prices) raw.prices = {};
+    if (!raw.constituents) raw.constituents = [];
     return raw;
   } catch {
     console.warn("[store] data.json invalide, réinitialisation.");

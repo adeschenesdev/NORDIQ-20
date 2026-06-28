@@ -14,8 +14,17 @@ export interface IndexConfig {
   weights: Record<string, number>;
 }
 
+export interface Constituent {
+  ticker: string;
+  name: string;
+  sector: string;
+  weight: number;
+}
+
 export interface IndexData {
   config: IndexConfig;
+  /** Métadonnées des constituants — permet d'afficher n'importe quelle composition. */
+  constituents: Constituent[];
   history: HistoryEntry[];
   /** Cours de clôture bruts : prices[date][ticker] = close */
   prices: Record<string, Record<string, number>>;

@@ -1,29 +1,20 @@
 import { useState } from "react";
-import type { HistoryEntry, IndexConfig } from "../hooks/useIndexData";
+import type { HistoryEntry, IndexConfig, Constituent } from "../hooks/useIndexData";
 import { ConstituentDetail } from "./ConstituentDetail";
 import type { Period } from "./HistoryChart";
-import constituentsRaw from "../../../data/constituents.json";
 import { exportConstituentsCSV } from "../utils/csvExport";
-
-interface Constituent {
-  ticker: string;
-  name: string;
-  sector: string;
-  weight: number;
-}
-
-const constituents = (constituentsRaw as { constituents: Constituent[] }).constituents;
 
 interface Props {
   history: HistoryEntry[];
   config: IndexConfig;
+  constituents: Constituent[];
   variant: "pr" | "tr";
   period: Period;
   prices: Record<string, Record<string, number>>;
   sectorFilter?: string | null;
 }
 
-export function ConstituentTable({ history, config, variant, period, prices, sectorFilter }: Props) {
+export function ConstituentTable({ history, config, constituents, variant, period, prices, sectorFilter }: Props) {
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
   const last = history[history.length - 1];
 

@@ -1,14 +1,5 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import constituentsRaw from "../../../data/constituents.json";
-
-interface Constituent {
-  ticker: string;
-  name: string;
-  sector: string;
-  weight: number;
-}
-
-const constituents = (constituentsRaw as { constituents: Constituent[] }).constituents;
+import type { Constituent } from "../hooks/useIndexData";
 
 const COLORS = [
   "#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6",
@@ -16,6 +7,7 @@ const COLORS = [
 ];
 
 interface Props {
+  constituents: Constituent[];
   onSectorClick?: (sector: string | null) => void;
   selectedSector?: string | null;
 }
@@ -30,7 +22,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: { name
   );
 }
 
-export function SectorChart({ onSectorClick, selectedSector }: Props) {
+export function SectorChart({ constituents, onSectorClick, selectedSector }: Props) {
   const sectorMap = new Map<string, number>();
   for (const c of constituents) {
     sectorMap.set(c.sector, (sectorMap.get(c.sector) ?? 0) + c.weight);

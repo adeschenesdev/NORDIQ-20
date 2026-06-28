@@ -5,21 +5,20 @@
  * ajoute la ligne dans data.json (idempotent par date).
  * Si data.json n'existe pas encore, indique de lancer backfill d'abord.
  */
-import constituentsConfig from "../../data/constituents.json" with { type: "json" };
 import { fetchTodayPrices } from "../data/fetch.js";
-import { loadStore, saveStore, upsertEntry, dataPathFor } from "../data/store.js";
+import { loadStore, saveStore, upsertEntry, dataPathFor, loadConstituents } from "../data/store.js";
 import { calculateIndex } from "../engine/index.js";
-import type { Constituent } from "../engine/index.js";
-
-const constituents = constituentsConfig.constituents as Constituent[];
-const tickers = constituents.map((c) => c.ticker);
 
 const args = process.argv.slice(2);
 const nameIdx = args.indexOf("--name");
 const nameArg = nameIdx >= 0 ? args[nameIdx + 1] : undefined;
 const dataPath = dataPathFor(nameArg);
 
+const constituents = loadConstituents(nameArg);
+const tickers = constituents.map((c) => c.ticker);
+
 const store = loadStore(dataPath);
+store.constituents = constituents;
 
 if (!store.config.t0 || !store.config.divisor) {
   console.error("data.json introuvable ou non initialisé. Lancez d'abord : npm run backfill");

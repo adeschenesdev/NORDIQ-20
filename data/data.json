@@ -149,7 +149,7 @@
     }
   ],
   "meta": {
-    "updatedAt": "2026-06-27T15:32:31.437Z",
+    "updatedAt": "2026-06-28T19:02:10.993Z",
     "source": "yahoo-finance2 (source non officielle, à titre éducatif uniquement)"
   },
   "prices": {
@@ -573,5 +573,121 @@
       "QBR-B.TO": 66.27999877929688,
       "FSV.TO": 199.77000427246094
     }
-  }
+  },
+  "constituents": [
+    {
+      "ticker": "FFH.TO",
+      "name": "Fairfax Financial",
+      "sector": "Finance",
+      "weight": 0.07
+    },
+    {
+      "ticker": "NA.TO",
+      "name": "Banque Nationale",
+      "sector": "Finance",
+      "weight": 0.07
+    },
+    {
+      "ticker": "BN.TO",
+      "name": "Brookfield Corporation",
+      "sector": "Finance",
+      "weight": 0.07
+    },
+    {
+      "ticker": "MFC.TO",
+      "name": "Manuvie",
+      "sector": "Finance",
+      "weight": 0.06
+    },
+    {
+      "ticker": "IFC.TO",
+      "name": "Intact Financière",
+      "sector": "Finance",
+      "weight": 0.06
+    },
+    {
+      "ticker": "K.TO",
+      "name": "Kinross Gold",
+      "sector": "Matériaux",
+      "weight": 0.06
+    },
+    {
+      "ticker": "LUG.TO",
+      "name": "Lundin Gold",
+      "sector": "Matériaux",
+      "weight": 0.06
+    },
+    {
+      "ticker": "AGI.TO",
+      "name": "Alamos Gold",
+      "sector": "Matériaux",
+      "weight": 0.06
+    },
+    {
+      "ticker": "CNQ.TO",
+      "name": "Canadian Natural Resources",
+      "sector": "Énergie",
+      "weight": 0.08
+    },
+    {
+      "ticker": "IMO.TO",
+      "name": "Imperial Oil",
+      "sector": "Énergie",
+      "weight": 0.07
+    },
+    {
+      "ticker": "HPS-A.TO",
+      "name": "Hammond Power Solutions",
+      "sector": "Industrie",
+      "weight": 0.05
+    },
+    {
+      "ticker": "TVK.TO",
+      "name": "TerraVest Industries",
+      "sector": "Industrie",
+      "weight": 0.05
+    },
+    {
+      "ticker": "CLS.TO",
+      "name": "Celestica",
+      "sector": "Technologies",
+      "weight": 0.05
+    },
+    {
+      "ticker": "MDA.TO",
+      "name": "MDA Space",
+      "sector": "Technologies",
+      "weight": 0.05
+    },
+    {
+      "ticker": "H.TO",
+      "name": "Hydro One",
+      "sector": "Services publics",
+      "weight": 0.04
+    },
+    {
+      "ticker": "DOL.TO",
+      "name": "Dollarama",
+      "sector": "Consommation discrétionnaire",
+      "weight": 0.03
+    },
+    {
+      "ticker": "L.TO",
+      "name": "Loblaw",
+      "sector": "Consommation de base",
+      "weight": 0.03
+    },
+    {
+      "ticker": "QBR-B.TO",
+      "name": "Québecor",
+      "sector": "Communication",
+      "weight": 0.02
+    },
+    {
+      "ticker": "FSV.TO",
+      "name": "FirstService",
+      "sector": "Immobilier",
+      "weight": 0.02
+    }
+  ]
 }
