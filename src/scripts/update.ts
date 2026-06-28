@@ -6,6 +6,7 @@
  * Si data.json n'existe pas encore, indique de lancer backfill d'abord.
  */
 import { fetchTodayPrices } from "../data/fetch.js";
+import { isCadTicker, hasUsdTickers, fetchUsdCadToday } from "../data/fx.js";
 import { loadStore, saveStore, upsertEntry, dataPathFor, loadConstituents } from "../data/store.js";
 import { calculateIndex } from "../engine/index.js";
 
@@ -31,14 +32,19 @@ console.log("Récupération des cours…\n");
 const todayPrices = await fetchTodayPrices(tickers);
 const today = new Date().toISOString().slice(0, 10);
 
+// Indices multi-devises : taux USD→CAD du jour pour convertir les titres US.
+const usdCad = hasUsdTickers(tickers) ? await fetchUsdCadToday() : 1;
+if (usdCad !== 1) console.log(`  [fx] USD/CAD = ${usdCad.toFixed(4)}`);
+
 const pricesPR: Record<string, number> = {};
 const pricesTR: Record<string, number> = {};
 
 for (const ticker of tickers) {
   const p = todayPrices[ticker];
   if (p) {
-    pricesPR[ticker] = p.close;
-    pricesTR[ticker] = p.adjClose;
+    const fx = isCadTicker(ticker) ? 1 : usdCad;
+    pricesPR[ticker] = p.close * fx;
+    pricesTR[ticker] = p.adjClose * fx;
   }
 }
 

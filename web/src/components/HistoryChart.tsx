@@ -14,6 +14,7 @@ import type { HistoryEntry } from "../hooks/useIndexData";
 
 interface Props {
   history: HistoryEntry[];
+  name: string;
   variant: "pr" | "tr";
   period: Period;
   onPeriodChange: (p: Period) => void;
@@ -54,7 +55,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
   );
 }
 
-export function HistoryChart({ history, variant, period, onPeriodChange }: Props) {
+export function HistoryChart({ history, name, variant, period, onPeriodChange }: Props) {
   const [compareMode, setCompareMode] = useState(false);
 
   const cutoff = cutoffDate(period);
@@ -87,7 +88,7 @@ export function HistoryChart({ history, variant, period, onPeriodChange }: Props
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-slate-800 dark:text-slate-200 font-semibold text-lg">
-            {compareMode ? "Comparaison PR vs TR" : `Historique NORDIQ-20 ${variant.toUpperCase()}`}
+            {compareMode ? "Comparaison PR vs TR" : `Historique ${name} ${variant.toUpperCase()}`}
           </h2>
           {perfPct !== null && (
             <p className={`text-sm font-medium mt-0.5 ${perfPct >= 0 ? "text-green-500" : "text-red-500"}`}>

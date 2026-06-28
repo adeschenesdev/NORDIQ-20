@@ -50,6 +50,7 @@ jobs:
           cp data/data.json web/dist/data.json
           cp data/data-backtest.json web/dist/data-backtest.json
           cp data/data-revised.json web/dist/data-revised.json
+          cp data/data-na.json web/dist/data-na.json
 
       - uses: actions/configure-pages@v5
 

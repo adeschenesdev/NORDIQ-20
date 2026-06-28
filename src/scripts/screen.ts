@@ -9,6 +9,10 @@
  * Les titres marqués (★) sont des constituants actuels de NORDIQ-20.
  */
 import { fetchHistory } from "../data/fetch.js";
+import { isCadTicker, fetchUsdCadSeries } from "../data/fx.js";
+
+// --na : ajoute l'univers américain et convertit les titres US en CAD.
+const NA = process.argv.includes("--na");
 
 interface Candidate {
   ticker: string;
@@ -128,6 +132,78 @@ const UNIVERSE: Candidate[] = [
   { ticker: "CSH-UN.TO", name: "Chartwell Retirement", sector: "Santé" },
 ];
 
+// Univers américain (NYSE/NASDAQ, cotés en USD → convertis en CAD). Utilisé avec --na.
+const US_UNIVERSE: Candidate[] = [
+  // Technologies
+  { ticker: "AAPL", name: "Apple", sector: "Technologies" },
+  { ticker: "MSFT", name: "Microsoft", sector: "Technologies" },
+  { ticker: "NVDA", name: "NVIDIA", sector: "Technologies" },
+  { ticker: "AVGO", name: "Broadcom", sector: "Technologies" },
+  { ticker: "ORCL", name: "Oracle", sector: "Technologies" },
+  { ticker: "CRM", name: "Salesforce", sector: "Technologies" },
+  { ticker: "AMD", name: "Advanced Micro Devices", sector: "Technologies" },
+  { ticker: "ADBE", name: "Adobe", sector: "Technologies" },
+  { ticker: "ACN", name: "Accenture", sector: "Technologies" },
+  { ticker: "PLTR", name: "Palantir", sector: "Technologies" },
+  // Communication
+  { ticker: "GOOGL", name: "Alphabet", sector: "Communication" },
+  { ticker: "META", name: "Meta Platforms", sector: "Communication" },
+  { ticker: "NFLX", name: "Netflix", sector: "Communication" },
+  { ticker: "DIS", name: "Walt Disney", sector: "Communication" },
+  { ticker: "TMUS", name: "T-Mobile US", sector: "Communication" },
+  // Consommation discrétionnaire
+  { ticker: "AMZN", name: "Amazon", sector: "Consommation discrétionnaire" },
+  { ticker: "TSLA", name: "Tesla", sector: "Consommation discrétionnaire" },
+  { ticker: "HD", name: "Home Depot", sector: "Consommation discrétionnaire" },
+  { ticker: "MCD", name: "McDonald's", sector: "Consommation discrétionnaire" },
+  { ticker: "BKNG", name: "Booking Holdings", sector: "Consommation discrétionnaire" },
+  // Consommation de base
+  { ticker: "WMT", name: "Walmart", sector: "Consommation de base" },
+  { ticker: "COST", name: "Costco", sector: "Consommation de base" },
+  { ticker: "PG", name: "Procter & Gamble", sector: "Consommation de base" },
+  { ticker: "KO", name: "Coca-Cola", sector: "Consommation de base" },
+  { ticker: "PEP", name: "PepsiCo", sector: "Consommation de base" },
+  // Finance
+  { ticker: "BRK-B", name: "Berkshire Hathaway", sector: "Finance" },
+  { ticker: "JPM", name: "JPMorgan Chase", sector: "Finance" },
+  { ticker: "V", name: "Visa", sector: "Finance" },
+  { ticker: "MA", name: "Mastercard", sector: "Finance" },
+  { ticker: "BAC", name: "Bank of America", sector: "Finance" },
+  { ticker: "GS", name: "Goldman Sachs", sector: "Finance" },
+  { ticker: "SPGI", name: "S&P Global", sector: "Finance" },
+  // Santé
+  { ticker: "LLY", name: "Eli Lilly", sector: "Santé" },
+  { ticker: "UNH", name: "UnitedHealth", sector: "Santé" },
+  { ticker: "JNJ", name: "Johnson & Johnson", sector: "Santé" },
+  { ticker: "ABBV", name: "AbbVie", sector: "Santé" },
+  { ticker: "MRK", name: "Merck", sector: "Santé" },
+  { ticker: "TMO", name: "Thermo Fisher", sector: "Santé" },
+  { ticker: "ISRG", name: "Intuitive Surgical", sector: "Santé" },
+  // Industrie
+  { ticker: "GE", name: "GE Aerospace", sector: "Industrie" },
+  { ticker: "CAT", name: "Caterpillar", sector: "Industrie" },
+  { ticker: "HON", name: "Honeywell", sector: "Industrie" },
+  { ticker: "RTX", name: "RTX", sector: "Industrie" },
+  { ticker: "DE", name: "Deere", sector: "Industrie" },
+  { ticker: "BA", name: "Boeing", sector: "Industrie" },
+  // Énergie
+  { ticker: "XOM", name: "ExxonMobil", sector: "Énergie" },
+  { ticker: "CVX", name: "Chevron", sector: "Énergie" },
+  { ticker: "COP", name: "ConocoPhillips", sector: "Énergie" },
+  // Matériaux
+  { ticker: "LIN", name: "Linde", sector: "Matériaux" },
+  { ticker: "SHW", name: "Sherwin-Williams", sector: "Matériaux" },
+  { ticker: "FCX", name: "Freeport-McMoRan", sector: "Matériaux" },
+  // Services publics
+  { ticker: "NEE", name: "NextEra Energy", sector: "Services publics" },
+  { ticker: "SO", name: "Southern Company", sector: "Services publics" },
+  { ticker: "CEG", name: "Constellation Energy", sector: "Services publics" },
+  // Immobilier
+  { ticker: "PLD", name: "Prologis", sector: "Immobilier" },
+  { ticker: "AMT", name: "American Tower", sector: "Immobilier" },
+  { ticker: "EQIX", name: "Equinix", sector: "Immobilier" },
+];
+
 const YTD_START = "2026-01-01";
 const now = new Date();
 const from3y = new Date(now);
@@ -161,17 +237,38 @@ function pct(v: number | null): string {
 }
 
 async function main() {
-  console.log(`\n=== Screening univers TSX (${UNIVERSE.length} titres) ===`);
+  const universe = NA ? [...UNIVERSE, ...US_UNIVERSE] : UNIVERSE;
+  console.log(`\n=== Screening univers ${NA ? "nord-américain (TSX + US, en CAD)" : "TSX"} (${universe.length} titres) ===`);
   console.log(`YTD : depuis ${YTD_START}  |  3 ans : depuis ${from3y.toISOString().slice(0, 10)}\n`);
 
+  // Conversion USD→CAD pour les titres américains (mode --na).
+  const fx = NA ? await fetchUsdCadSeries(from3y, now) : {};
+  const fxDates = Object.keys(fx).sort();
+  const rateForDate = (date: string): number => {
+    let rate = fxDates.length ? fx[fxDates[0]] : 1;
+    for (const d of fxDates) {
+      if (d <= date) rate = fx[d];
+      else break;
+    }
+    return rate;
+  };
+
   const rows: Row[] = [];
-  for (const c of UNIVERSE) {
+  for (const c of universe) {
     try {
       const hist = await fetchHistory(c.ticker, from3y, now);
       if (hist.length === 0) {
         console.warn(`  [screen] ${c.ticker} — aucune donnée`);
         rows.push({ ...c, ytd: null, ret3y: null, scoreYtd: null, score3y: null, blended: null });
         continue;
+      }
+      // Titres US : convertir cours et cours ajustés en CAD au taux du jour.
+      if (NA && !isCadTicker(c.ticker) && fxDates.length) {
+        for (const r of hist) {
+          const rate = rateForDate(r.date);
+          r.close *= rate;
+          r.adjClose *= rate;
+        }
       }
       const last = hist[hist.length - 1];
       const ytdBase = hist.find((r) => r.date >= YTD_START);
@@ -199,7 +296,7 @@ async function main() {
   });
 
   // Affichage par secteur, trié par score mixte décroissant
-  const sectors = Array.from(new Set(UNIVERSE.map((c) => c.sector)));
+  const sectors = Array.from(new Set(universe.map((c) => c.sector)));
   const fmtScore = (v: number | null) => (v == null ? " n/a" : v.toFixed(2));
 
   for (const sector of sectors) {

@@ -22,16 +22,17 @@ jobs:
       - name: Installer les dépendances
         run: npm ci
 
-      - name: Mettre à jour les indices (live + backtest + révisé)
+      - name: Mettre à jour les indices (live + backtest + révisé + NA)
         run: |
           npm run update
           npm run update:backtest
           npm run update:revised
+          npm run update:na
 
       - name: Commit et push des données
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/data.json data/data-backtest.json data/data-revised.json
+          git add data/data.json data/data-backtest.json data/data-revised.json data/data-na.json
           git diff --staged --quiet || git commit -m "chore: mise à jour quotidienne $(date -u +%Y-%m-%d)"
           git push
