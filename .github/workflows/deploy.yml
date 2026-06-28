@@ -3,6 +3,11 @@ name: Deploy GitHub Pages
 on:
   push:
     branches: [main]
+  # Redéploie après la mise à jour quotidienne. Nécessaire car un push fait par le
+  # GITHUB_TOKEN ne déclenche pas l'événement « push » (règle anti-récursion de GitHub).
+  workflow_run:
+    workflows: ["Mise à jour quotidienne NORDIQ-20"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -17,11 +22,17 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Sur workflow_run, ne déployer que si la mise à jour quotidienne a réussi.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Toujours récupérer la pointe de main (le commit de données fraîchement poussé
+          # par update.yml n'est pas le head_sha de l'événement workflow_run).
+          ref: main
 
       - uses: actions/setup-node@v4
         with:
