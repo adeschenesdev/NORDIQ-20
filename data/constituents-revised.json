@@ -1,0 +1,25 @@
+{
+  "_comment": "Composition RÉVISÉE de NORDIQ-20 (indice parallèle « revised »). Sélection par score mixte 50/50 (rendement YTD 2026 + rendement total 3 ans), refonte sectorielle (11 secteurs, Finance/Matériaux réduits, Santé introduite). La somme des poids doit être égale à 1.0 (100%).",
+  "constituents": [
+    { "ticker": "HPS-A.TO", "name": "Hammond Power Solutions", "sector": "Industrie", "weight": 0.08 },
+    { "ticker": "MDA.TO", "name": "MDA Space", "sector": "Technologies", "weight": 0.07 },
+    { "ticker": "IMO.TO", "name": "Imperial Oil", "sector": "Énergie", "weight": 0.07 },
+    { "ticker": "GWO.TO", "name": "Great-West Lifeco", "sector": "Finance", "weight": 0.06 },
+    { "ticker": "CM.TO", "name": "Banque CIBC", "sector": "Finance", "weight": 0.06 },
+    { "ticker": "NA.TO", "name": "Banque Nationale", "sector": "Finance", "weight": 0.06 },
+    { "ticker": "TRP.TO", "name": "TC Energy", "sector": "Énergie", "weight": 0.06 },
+    { "ticker": "CLS.TO", "name": "Celestica", "sector": "Technologies", "weight": 0.06 },
+    { "ticker": "FTT.TO", "name": "Finning International", "sector": "Industrie", "weight": 0.06 },
+    { "ticker": "QBR-B.TO", "name": "Québecor", "sector": "Communication", "weight": 0.06 },
+    { "ticker": "EXE.TO", "name": "Extendicare", "sector": "Santé", "weight": 0.05 },
+    { "ticker": "CCO.TO", "name": "Cameco", "sector": "Matériaux", "weight": 0.05 },
+    { "ticker": "MG.TO", "name": "Magna International", "sector": "Consommation discrétionnaire", "weight": 0.05 },
+    { "ticker": "CSH-UN.TO", "name": "Chartwell Retirement", "sector": "Santé", "weight": 0.03 },
+    { "ticker": "IMG.TO", "name": "Iamgold", "sector": "Matériaux", "weight": 0.03 },
+    { "ticker": "CPX.TO", "name": "Capital Power", "sector": "Services publics", "weight": 0.03 },
+    { "ticker": "FTS.TO", "name": "Fortis", "sector": "Services publics", "weight": 0.03 },
+    { "ticker": "L.TO", "name": "Loblaw", "sector": "Consommation de base", "weight": 0.03 },
+    { "ticker": "ATD.TO", "name": "Alimentation Couche-Tard", "sector": "Consommation de base", "weight": 0.03 },
+    { "ticker": "REI-UN.TO", "name": "RioCan REIT", "sector": "Immobilier", "weight": 0.03 }
+  ]
+}

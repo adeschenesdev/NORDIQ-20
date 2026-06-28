@@ -1,18 +1,9 @@
 import { useState } from "react";
-import type { IndexConfig, HistoryEntry } from "../hooks/useIndexData";
-import constituentsRaw from "../../../data/constituents.json";
-
-interface Constituent {
-  ticker: string;
-  name: string;
-  sector: string;
-  weight: number;
-}
-
-const constituents = (constituentsRaw as { constituents: Constituent[] }).constituents;
+import type { IndexConfig, HistoryEntry, Constituent } from "../hooks/useIndexData";
 
 interface Props {
   config: IndexConfig;
+  constituents: Constituent[];
   prices: Record<string, Record<string, number>>;
   history: HistoryEntry[];
   variant: "pr" | "tr";
@@ -59,7 +50,7 @@ function RebalanceModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function RebalancingDashboard({ config, prices, history, variant }: Props) {
+export function RebalancingDashboard({ config, constituents, prices, history, variant }: Props) {
   const [showModal, setShowModal] = useState(false);
   const last = history[history.length - 1];
   if (!last) return null;

@@ -5,19 +5,17 @@
  * et des poids définis dans constituents.json.
  * La valeur de l'indice reste continue (pas de saut).
  */
-import constituentsConfig from "../../data/constituents.json" with { type: "json" };
 import { fetchTodayPrices } from "../data/fetch.js";
-import { loadStore, saveStore, dataPathFor } from "../data/store.js";
+import { loadStore, saveStore, dataPathFor, loadConstituents } from "../data/store.js";
 import { rebalanceIndex } from "../engine/index.js";
-import type { Constituent } from "../engine/index.js";
-
-const constituents = constituentsConfig.constituents as Constituent[];
-const tickers = constituents.map((c) => c.ticker);
 
 const args = process.argv.slice(2);
 const nameIdx = args.indexOf("--name");
 const nameArg = nameIdx >= 0 ? args[nameIdx + 1] : undefined;
 const dataPath = dataPathFor(nameArg);
+
+const constituents = loadConstituents(nameArg);
+const tickers = constituents.map((c) => c.ticker);
 
 const store = loadStore(dataPath);
 
@@ -55,6 +53,7 @@ for (const [ticker, q] of Object.entries(newConfig.units)) {
 }
 
 store.config = newConfig;
+store.constituents = constituents;
 saveStore(store, dataPath);
 
 console.log(`\n✓ Rééquilibrage effectué le ${today}. data.json mis à jour.`);

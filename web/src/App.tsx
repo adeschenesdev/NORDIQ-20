@@ -9,11 +9,17 @@ import { PortfolioSimulator } from "./components/PortfolioSimulator";
 import { RebalancingDashboard } from "./components/RebalancingDashboard";
 import { AboutModal } from "./components/AboutModal";
 
-type IndexKey = "live" | "backtest";
+const INDICES = [
+  { key: "live", label: "NORDIQ-20", url: "./data.json" },
+  { key: "revised", label: "NORDIQ-20 Révisé", url: "./data-revised.json" },
+  { key: "backtest", label: "Backtest 5 ans", url: "./data-backtest.json" },
+] as const;
+
+type IndexKey = (typeof INDICES)[number]["key"];
 
 export default function App() {
   const [activeIndex, setActiveIndex] = useState<IndexKey>("live");
-  const dataUrl = activeIndex === "backtest" ? "./data-backtest.json" : "./data.json";
+  const dataUrl = INDICES.find((i) => i.key === activeIndex)!.url;
   const { data, error, loading } = useIndexData(dataUrl);
   const [variant, setVariant] = useState<"pr" | "tr">("pr");
   const [period, setPeriod] = useState<Period>("1A");
@@ -30,13 +36,8 @@ export default function App() {
   }, [lastEntry, variant]);
 
   const tabBar = (
-    <div className="flex gap-2 mb-6">
-      {(
-        [
-          ["live", "NORDIQ-20"],
-          ["backtest", "Backtest 5 ans"],
-        ] as const
-      ).map(([key, label]) => (
+    <div className="flex flex-wrap gap-2 mb-6">
+      {INDICES.map(({ key, label }) => (
         <button
           key={key}
           onClick={() => setActiveIndex(key)}
@@ -97,6 +98,17 @@ export default function App() {
             </p>
           </div>
         )}
+        {activeIndex === "revised" && (
+          <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-300 dark:border-blue-800/60 text-blue-800 dark:text-blue-300 rounded-2xl px-5 py-4 mb-6 text-sm">
+            <p className="font-semibold mb-1">🔄 Composition révisée (à titre comparatif)</p>
+            <p>
+              Variante de NORDIQ-20 à <strong>20 titres</strong>, sélectionnés par un score mixte
+              <strong> rendement YTD 2026 + rendement total 3 ans</strong>, avec une refonte sectorielle
+              (Finance et Matériaux allégés, secteur Santé introduit). Lancée le 1ᵉʳ juin 2026 à 1000
+              points, en parallèle de l'indice principal, pour comparer les deux approches.
+            </p>
+          </div>
+        )}
         <IndexHeader
           history={data.history}
           variant={variant}
@@ -110,14 +122,15 @@ export default function App() {
           <ConstituentTable
             history={data.history}
             config={data.config}
+            constituents={data.constituents ?? []}
             variant={variant}
             period={period}
             prices={data.prices ?? {}}
             sectorFilter={selectedSector}
           />
-          <SectorChart onSectorClick={setSelectedSector} selectedSector={selectedSector} />
-          <RebalancingDashboard config={data.config} prices={data.prices ?? {}} history={data.history} variant={variant} />
-          <PortfolioSimulator config={data.config} prices={data.prices ?? {}} />
+          <SectorChart constituents={data.constituents ?? []} onSectorClick={setSelectedSector} selectedSector={selectedSector} />
+          <RebalancingDashboard config={data.config} constituents={data.constituents ?? []} prices={data.prices ?? {}} history={data.history} variant={variant} />
+          <PortfolioSimulator config={data.config} constituents={data.constituents ?? []} prices={data.prices ?? {}} />
         </div>
         <footer className="mt-8 text-center text-xs text-slate-400 dark:text-slate-600 space-y-1">
           <p>

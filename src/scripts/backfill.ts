@@ -5,14 +5,9 @@
  * Si data.json existe déjà avec une config, il ne réinitialise PAS le diviseur
  * (sauf si --reset est passé). Les dates déjà présentes sont écrasées (idempotent).
  */
-import constituentsConfig from "../../data/constituents.json" with { type: "json" };
 import { fetchAllHistory } from "../data/fetch.js";
-import { loadStore, saveStore, upsertEntry, dataPathFor } from "../data/store.js";
+import { loadStore, saveStore, upsertEntry, dataPathFor, loadConstituents } from "../data/store.js";
 import { initializeIndex, calculateIndex } from "../engine/index.js";
-import type { Constituent } from "../engine/index.js";
-
-const constituents = constituentsConfig.constituents as Constituent[];
-const tickers = constituents.map((c) => c.ticker);
 
 // Lecture des arguments
 const args = process.argv.slice(2);
@@ -27,6 +22,8 @@ function find(arr: string[], val: string) {
 }
 
 const dataPath = dataPathFor(nameArg);
+const constituents = loadConstituents(nameArg);
+const tickers = constituents.map((c) => c.ticker);
 
 // Date de base par défaut = inception de l'indice live (page principale).
 // Le backtest 5 ans est généré explicitement avec --from 2021-06-30 (cf. npm run backfill:backtest).
@@ -120,6 +117,7 @@ for (const date of sortedDates) {
   }
 }
 
+store.constituents = constituents;
 console.log(`\n\nSauvegarde de ${dataPath}…`);
 saveStore(store, dataPath);
 
