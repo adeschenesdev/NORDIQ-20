@@ -10,14 +10,17 @@
     "update:revised": "tsx src/scripts/update.ts --name revised",
     "update:na": "tsx src/scripts/update.ts --name na",
     "update:nordmax": "tsx src/scripts/update.ts --name nordmax",
+    "update:usa": "tsx src/scripts/update.ts --name usa",
     "backfill": "tsx src/scripts/backfill.ts",
     "backfill:backtest": "tsx src/scripts/backfill.ts --name backtest --from 2021-06-30",
     "backfill:revised": "tsx src/scripts/backfill.ts --name revised",
     "backfill:na": "tsx src/scripts/backfill.ts --name na",
     "backfill:nordmax": "tsx src/scripts/backfill.ts --name nordmax",
+    "backfill:usa": "tsx src/scripts/backfill.ts --name usa",
     "rebalance": "tsx src/scripts/rebalance.ts",
     "screen": "tsx src/scripts/screen.ts",
     "screen:na": "tsx src/scripts/screen.ts --na",
+    "screen:usa": "tsx src/scripts/screen.ts --us",
     "verify-tickers": "tsx src/scripts/verify-tickers.ts",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -28,7 +31,8 @@
     "sync-data:backtest": "tsx src/scripts/sync-dist.ts --name backtest",
     "sync-data:revised": "tsx src/scripts/sync-dist.ts --name revised",
     "sync-data:na": "tsx src/scripts/sync-dist.ts --name na",
-    "sync-data:nordmax": "tsx src/scripts/sync-dist.ts --name nordmax"
+    "sync-data:nordmax": "tsx src/scripts/sync-dist.ts --name nordmax",
+    "sync-data:usa": "tsx src/scripts/sync-dist.ts --name usa"
   },
   "workspaces": [
     "web"

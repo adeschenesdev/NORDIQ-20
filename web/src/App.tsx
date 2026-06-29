@@ -15,6 +15,7 @@ const INDICES = [
   { key: "revised", label: "NORDIQ-20 Révisé", name: "NORDIQ-20 Révisé", subtitle: "Indice canadien", url: "./data-revised.json" },
   { key: "na", label: "NORDAM-30", name: "NORDAM-30", subtitle: "Indice nord-américain", url: "./data-na.json" },
   { key: "nordmax", label: "NORDMAX-20", name: "NORDMAX-20", subtitle: "Rendement maximal", url: "./data-nordmax.json" },
+  { key: "usa", label: "USA-30", name: "USA-30", subtitle: "Indice américain (en CAD)", url: "./data-usa.json" },
   { key: "backtest", label: "Backtest 5 ans", name: "NORDIQ-20", subtitle: "Backtest 5 ans", url: "./data-backtest.json" },
 ] as const;
 
@@ -160,6 +161,17 @@ export default function App() {
               rendement</strong> : score penché court terme (<strong>70 % YTD + 30 % 3 ans</strong>),
               pondération concentrée sur les meilleurs, contrainte sectorielle volontairement
               <strong> lâche</strong>. Plus agressif et plus volatil. À titre illustratif uniquement.
+            </p>
+          </div>
+        )}
+        {activeIndex === "usa" && (
+          <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 rounded-2xl px-5 py-4 mb-6 text-sm">
+            <p className="font-semibold mb-1">🇺🇸 USA-30 — indice 100 % américain</p>
+            <p>
+              <strong>30 titres américains</strong> sélectionnés par le même score mixte
+              <strong> 50 % YTD 2026 + 50 % 3 ans</strong>, diversifiés sur 11 secteurs. Cours
+              <strong> convertis en CAD</strong> (taux USD/CAD), donc la performance inclut le change.
+              NVIDIA et Apple y figurent, mais à poids modéré (2026 tiède). À titre comparatif.
             </p>
           </div>
         )}

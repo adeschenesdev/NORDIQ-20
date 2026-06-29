@@ -52,6 +52,7 @@ jobs:
           cp data/data-revised.json web/dist/data-revised.json
           cp data/data-na.json web/dist/data-na.json
           cp data/data-nordmax.json web/dist/data-nordmax.json
+          cp data/data-usa.json web/dist/data-usa.json
 
       - uses: actions/configure-pages@v5
 

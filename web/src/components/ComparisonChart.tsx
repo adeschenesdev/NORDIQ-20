@@ -18,6 +18,7 @@ const SERIES = [
   { key: "revised", label: "NORDIQ-20 Révisé", url: "./data-revised.json", color: "#6366f1" },
   { key: "na", label: "NORDAM-30", url: "./data-na.json", color: "#a855f7" },
   { key: "nordmax", label: "NORDMAX-20", url: "./data-nordmax.json", color: "#f43f5e" },
+  { key: "usa", label: "USA-30", url: "./data-usa.json", color: "#10b981" },
 ] as const;
 
 type SeriesKey = (typeof SERIES)[number]["key"];
