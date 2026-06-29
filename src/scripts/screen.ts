@@ -11,8 +11,10 @@
 import { fetchHistory } from "../data/fetch.js";
 import { isCadTicker, fetchUsdCadSeries } from "../data/fx.js";
 
-// --na : ajoute l'univers américain et convertit les titres US en CAD.
+// --na : univers nord-américain (TSX + US). --us : univers US seul. Les titres US sont convertis en CAD.
 const NA = process.argv.includes("--na");
+const US = process.argv.includes("--us");
+const CONVERT = NA || US; // conversion USD→CAD requise dès qu'il y a des titres US
 
 // --ytd-weight <0..1> : poids du rendement YTD dans le score mixte (défaut 0.5 ; 0.7 = penché court terme).
 function argVal(flag: string): string | undefined {
@@ -244,12 +246,13 @@ function pct(v: number | null): string {
 }
 
 async function main() {
-  const universe = NA ? [...UNIVERSE, ...US_UNIVERSE] : UNIVERSE;
-  console.log(`\n=== Screening univers ${NA ? "nord-américain (TSX + US, en CAD)" : "TSX"} (${universe.length} titres) ===`);
+  const universe = US ? US_UNIVERSE : NA ? [...UNIVERSE, ...US_UNIVERSE] : UNIVERSE;
+  const label = US ? "américain (US, en CAD)" : NA ? "nord-américain (TSX + US, en CAD)" : "TSX";
+  console.log(`\n=== Screening univers ${label} (${universe.length} titres) ===`);
   console.log(`YTD : depuis ${YTD_START}  |  3 ans : depuis ${from3y.toISOString().slice(0, 10)}  |  score : ${(W_YTD * 100).toFixed(0)}% YTD / ${((1 - W_YTD) * 100).toFixed(0)}% 3 ans\n`);
 
-  // Conversion USD→CAD pour les titres américains (mode --na).
-  const fx = NA ? await fetchUsdCadSeries(from3y, now) : {};
+  // Conversion USD→CAD pour les titres américains (modes --na et --us).
+  const fx = CONVERT ? await fetchUsdCadSeries(from3y, now) : {};
   const fxDates = Object.keys(fx).sort();
   const rateForDate = (date: string): number => {
     let rate = fxDates.length ? fx[fxDates[0]] : 1;
@@ -270,7 +273,7 @@ async function main() {
         continue;
       }
       // Titres US : convertir cours et cours ajustés en CAD au taux du jour.
-      if (NA && !isCadTicker(c.ticker) && fxDates.length) {
+      if (CONVERT && !isCadTicker(c.ticker) && fxDates.length) {
         for (const r of hist) {
           const rate = rateForDate(r.date);
           r.close *= rate;
