@@ -14,6 +14,13 @@ import { isCadTicker, fetchUsdCadSeries } from "../data/fx.js";
 // --na : ajoute l'univers américain et convertit les titres US en CAD.
 const NA = process.argv.includes("--na");
 
+// --ytd-weight <0..1> : poids du rendement YTD dans le score mixte (défaut 0.5 ; 0.7 = penché court terme).
+function argVal(flag: string): string | undefined {
+  const i = process.argv.indexOf(flag);
+  return i >= 0 ? process.argv[i + 1] : undefined;
+}
+const W_YTD = Math.min(1, Math.max(0, parseFloat(argVal("--ytd-weight") ?? "0.5")));
+
 interface Candidate {
   ticker: string;
   name: string;
@@ -239,7 +246,7 @@ function pct(v: number | null): string {
 async function main() {
   const universe = NA ? [...UNIVERSE, ...US_UNIVERSE] : UNIVERSE;
   console.log(`\n=== Screening univers ${NA ? "nord-américain (TSX + US, en CAD)" : "TSX"} (${universe.length} titres) ===`);
-  console.log(`YTD : depuis ${YTD_START}  |  3 ans : depuis ${from3y.toISOString().slice(0, 10)}\n`);
+  console.log(`YTD : depuis ${YTD_START}  |  3 ans : depuis ${from3y.toISOString().slice(0, 10)}  |  score : ${(W_YTD * 100).toFixed(0)}% YTD / ${((1 - W_YTD) * 100).toFixed(0)}% 3 ans\n`);
 
   // Conversion USD→CAD pour les titres américains (mode --na).
   const fx = NA ? await fetchUsdCadSeries(from3y, now) : {};
@@ -290,7 +297,7 @@ async function main() {
   rows.forEach((r, i) => {
     r.scoreYtd = ytdRanks[i];
     r.score3y = r3yRanks[i];
-    if (r.scoreYtd != null && r.score3y != null) r.blended = 0.5 * r.scoreYtd + 0.5 * r.score3y;
+    if (r.scoreYtd != null && r.score3y != null) r.blended = W_YTD * r.scoreYtd + (1 - W_YTD) * r.score3y;
     else if (r.scoreYtd != null) r.blended = r.scoreYtd; // titres sans 3 ans : YTD seul
     else r.blended = null;
   });

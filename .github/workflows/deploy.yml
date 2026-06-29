@@ -51,6 +51,7 @@ jobs:
           cp data/data-backtest.json web/dist/data-backtest.json
           cp data/data-revised.json web/dist/data-revised.json
           cp data/data-na.json web/dist/data-na.json
+          cp data/data-nordmax.json web/dist/data-nordmax.json
 
       - uses: actions/configure-pages@v5
 
