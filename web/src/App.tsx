@@ -11,12 +11,54 @@ import { ComparisonChart } from "./components/ComparisonChart";
 import { AboutModal } from "./components/AboutModal";
 
 const INDICES = [
-  { key: "live", label: "NORDIQ-20", name: "NORDIQ-20", subtitle: "Indice canadien", url: "./data.json" },
-  { key: "revised", label: "NORDIQ-20 Révisé", name: "NORDIQ-20 Révisé", subtitle: "Indice canadien", url: "./data-revised.json" },
-  { key: "na", label: "NORDAM-30", name: "NORDAM-30", subtitle: "Indice nord-américain", url: "./data-na.json" },
-  { key: "nordmax", label: "NORDMAX-20", name: "NORDMAX-20", subtitle: "Rendement maximal", url: "./data-nordmax.json" },
-  { key: "usa", label: "USA-30", name: "USA-30", subtitle: "Indice américain (en CAD)", url: "./data-usa.json" },
-  { key: "backtest", label: "Backtest 5 ans", name: "NORDIQ-20", subtitle: "Backtest 5 ans", url: "./data-backtest.json" },
+  {
+    key: "live",
+    label: "NORDIQ-20",
+    name: "NORDIQ-20",
+    subtitle: "Indice canadien",
+    url: "./data.json",
+    about: "Indice boursier pancanadien expérimental regroupant des sociétés canadiennes sélectionnées par secteur GICS selon leur rendement total sur 3 ans. Lancé le 1ᵉʳ juin 2026, il représente la composition d'origine.",
+  },
+  {
+    key: "revised",
+    label: "NORDIQ-20 Révisé",
+    name: "NORDIQ-20 Révisé",
+    subtitle: "Indice canadien",
+    url: "./data-revised.json",
+    about: "Variante révisée du NORDIQ-20 : titres canadiens sélectionnés par un score mixte (rendement YTD 2026 + rendement total 3 ans) avec une refonte sectorielle (Finance et Matériaux allégés, secteur Santé introduit).",
+  },
+  {
+    key: "na",
+    label: "NORDAM-30",
+    name: "NORDAM-30",
+    subtitle: "Indice nord-américain",
+    url: "./data-na.json",
+    about: "Indice nord-américain (Canada + USA) : titres sélectionnés par score mixte 50/50 (YTD 2026 + 3 ans). Les cours des titres américains sont convertis en CAD au taux USD/CAD, donc la performance inclut le change.",
+  },
+  {
+    key: "nordmax",
+    label: "NORDMAX-20",
+    name: "NORDMAX-20",
+    subtitle: "Rendement maximal",
+    url: "./data-nordmax.json",
+    about: "Indice nord-américain orienté rendement maximal : titres choisis par un score penché court terme (70 % YTD + 30 % 3 ans), pondérés par score et faiblement contraints par secteur. Plus agressif et volatil. Cours en CAD.",
+  },
+  {
+    key: "usa",
+    label: "USA-30",
+    name: "USA-30",
+    subtitle: "Indice américain (en CAD)",
+    url: "./data-usa.json",
+    about: "Indice 100 % américain : titres sélectionnés par score mixte 50/50 (YTD 2026 + 3 ans), diversifiés par secteur. Les cours (USD) sont convertis en CAD au taux USD/CAD, donc la performance inclut le change.",
+  },
+  {
+    key: "backtest",
+    label: "Backtest 5 ans",
+    name: "NORDIQ-20",
+    subtitle: "Backtest 5 ans",
+    url: "./data-backtest.json",
+    about: "Backtest sur 5 ans de la composition NORDIQ-20 : historique reconstitué en appliquant rétroactivement les constituants actuels depuis 2021. La performance passée est embellie par le biais du survivant — à titre illustratif uniquement.",
+  },
 ] as const;
 
 type IndexKey = (typeof INDICES)[number]["key"] | "comparison";
@@ -117,7 +159,15 @@ export default function App() {
 
   return (
     <div data-theme={theme} className="min-h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
-      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
+      {showAbout && (
+        <AboutModal
+          name={active.name}
+          description={active.about}
+          t0={data.config.t0}
+          count={data.constituents?.length ?? 0}
+          onClose={() => setShowAbout(false)}
+        />
+      )}
       <div className="max-w-5xl mx-auto px-4 py-8">
         {tabBar}
         {activeIndex === "backtest" && (
