@@ -7,6 +7,7 @@ import { ConstituentTable } from "./components/ConstituentTable";
 import { SectorChart } from "./components/SectorChart";
 import { PortfolioSimulator } from "./components/PortfolioSimulator";
 import { RebalancingDashboard } from "./components/RebalancingDashboard";
+import { ComparisonChart } from "./components/ComparisonChart";
 import { AboutModal } from "./components/AboutModal";
 
 const INDICES = [
@@ -17,12 +18,12 @@ const INDICES = [
   { key: "backtest", label: "Backtest 5 ans", name: "NORDIQ-20", subtitle: "Backtest 5 ans", url: "./data-backtest.json" },
 ] as const;
 
-type IndexKey = (typeof INDICES)[number]["key"];
+type IndexKey = (typeof INDICES)[number]["key"] | "comparison";
 
 export default function App() {
   const [activeIndex, setActiveIndex] = useState<IndexKey>("live");
-  const active = INDICES.find((i) => i.key === activeIndex)!;
-  const dataUrl = active.url;
+  const active = INDICES.find((i) => i.key === activeIndex);
+  const dataUrl = active?.url ?? "./data.json";
   const { data, error, loading } = useIndexData(dataUrl);
   const [variant, setVariant] = useState<"pr" | "tr">("pr");
   const [period, setPeriod] = useState<Period>("1A");
@@ -32,11 +33,13 @@ export default function App() {
 
   const lastEntry = data?.history[data.history.length - 1];
   useEffect(() => {
-    if (lastEntry) {
+    if (lastEntry && active) {
       const val = variant === "pr" ? lastEntry.pr : lastEntry.tr;
       document.title = `${active.name} ${variant.toUpperCase()}: ${val.toFixed(2)} pts`;
+    } else if (activeIndex === "comparison") {
+      document.title = "Comparaison des indices";
     }
-  }, [lastEntry, variant, active.name]);
+  }, [lastEntry, variant, active, activeIndex]);
 
   const tabBar = (
     <div className="flex flex-wrap gap-2 mb-6">
@@ -53,8 +56,34 @@ export default function App() {
           {label}
         </button>
       ))}
+      <button
+        onClick={() => setActiveIndex("comparison")}
+        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+          activeIndex === "comparison"
+            ? "bg-blue-600 text-white"
+            : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+        }`}
+      >
+        📊 Comparaison
+      </button>
     </div>
   );
+
+  if (activeIndex === "comparison") {
+    return (
+      <div data-theme={theme} className="min-h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          {tabBar}
+          <ComparisonChart theme={theme} onThemeToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} />
+          <footer className="mt-8 text-center text-xs text-slate-400 dark:text-slate-600">
+            <p>Comparaison des indices partageant la base 1000 au 1ᵉʳ juin 2026 (le backtest 5 ans est exclu — échelle différente).</p>
+          </footer>
+        </div>
+      </div>
+    );
+  }
+
+  if (!active) return null; // hors « comparison », active est toujours défini
 
   if (loading) {
     return (
