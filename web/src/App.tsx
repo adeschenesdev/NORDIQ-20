@@ -13,6 +13,7 @@ const INDICES = [
   { key: "live", label: "NORDIQ-20", name: "NORDIQ-20", subtitle: "Indice canadien", url: "./data.json" },
   { key: "revised", label: "NORDIQ-20 Révisé", name: "NORDIQ-20 Révisé", subtitle: "Indice canadien", url: "./data-revised.json" },
   { key: "na", label: "NORDAM-30", name: "NORDAM-30", subtitle: "Indice nord-américain", url: "./data-na.json" },
+  { key: "nordmax", label: "NORDMAX-20", name: "NORDMAX-20", subtitle: "Rendement maximal", url: "./data-nordmax.json" },
   { key: "backtest", label: "Backtest 5 ans", name: "NORDIQ-20", subtitle: "Backtest 5 ans", url: "./data-backtest.json" },
 ] as const;
 
@@ -119,6 +120,17 @@ export default function App() {
               <strong> rendement YTD 2026 + rendement total 3 ans</strong>. Tous les cours sont
               <strong> convertis en CAD</strong> (taux USD/CAD historique), donc la performance inclut le
               change. Lancé le 1ᵉʳ juin 2026 à 1000 points, à titre comparatif.
+            </p>
+          </div>
+        )}
+        {activeIndex === "nordmax" && (
+          <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800/60 text-rose-800 dark:text-rose-300 rounded-2xl px-5 py-4 mb-6 text-sm">
+            <p className="font-semibold mb-1">🚀 NORDMAX-20 — recherche de rendement maximal</p>
+            <p>
+              <strong>20 titres</strong> nord-américains (en CAD) choisis pour <strong>maximiser le
+              rendement</strong> : score penché court terme (<strong>70 % YTD + 30 % 3 ans</strong>),
+              pondération concentrée sur les meilleurs, contrainte sectorielle volontairement
+              <strong> lâche</strong>. Plus agressif et plus volatil. À titre illustratif uniquement.
             </p>
           </div>
         )}

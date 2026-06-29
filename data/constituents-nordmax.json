@@ -1,0 +1,25 @@
+{
+  "_comment": "Composition NORDMAX-20 (indice « nordmax » orienté rendement maximal). 20 titres nord-américains sélectionnés par score penché court terme (70% rendement YTD 2026 + 30% rendement total 3 ans), contrainte sectorielle volontairement lâche (plafond ~40%/secteur), pondérés par score (poids max ~10%). Titres US (sans .TO) convertis en CAD. Somme des poids = 1.0 (100%).",
+  "constituents": [
+    { "ticker": "HPS-A.TO", "name": "Hammond Power Solutions", "sector": "Industrie", "weight": 0.10 },
+    { "ticker": "AMD", "name": "Advanced Micro Devices", "sector": "Technologies", "weight": 0.09 },
+    { "ticker": "MDA.TO", "name": "MDA Space", "sector": "Technologies", "weight": 0.09 },
+    { "ticker": "EXE.TO", "name": "Extendicare", "sector": "Santé", "weight": 0.08 },
+    { "ticker": "CAT", "name": "Caterpillar", "sector": "Industrie", "weight": 0.07 },
+    { "ticker": "HON", "name": "Honeywell", "sector": "Industrie", "weight": 0.07 },
+    { "ticker": "GWO.TO", "name": "Great-West Lifeco", "sector": "Finance", "weight": 0.06 },
+    { "ticker": "BMO.TO", "name": "Banque de Montréal", "sector": "Finance", "weight": 0.05 },
+    { "ticker": "IMO.TO", "name": "Imperial Oil", "sector": "Énergie", "weight": 0.05 },
+    { "ticker": "CM.TO", "name": "Banque CIBC", "sector": "Finance", "weight": 0.05 },
+    { "ticker": "TD.TO", "name": "Banque TD", "sector": "Finance", "weight": 0.04 },
+    { "ticker": "NA.TO", "name": "Banque Nationale", "sector": "Finance", "weight": 0.04 },
+    { "ticker": "TRP.TO", "name": "TC Energy", "sector": "Énergie", "weight": 0.04 },
+    { "ticker": "FTT.TO", "name": "Finning International", "sector": "Industrie", "weight": 0.03 },
+    { "ticker": "CVE.TO", "name": "Cenovus Energy", "sector": "Énergie", "weight": 0.03 },
+    { "ticker": "QBR-B.TO", "name": "Québecor", "sector": "Communication", "weight": 0.03 },
+    { "ticker": "EQIX", "name": "Equinix", "sector": "Immobilier", "weight": 0.02 },
+    { "ticker": "DE", "name": "Deere", "sector": "Industrie", "weight": 0.02 },
+    { "ticker": "SLF.TO", "name": "Sun Life", "sector": "Finance", "weight": 0.02 },
+    { "ticker": "RY.TO", "name": "Banque Royale", "sector": "Finance", "weight": 0.02 }
+  ]
+}
