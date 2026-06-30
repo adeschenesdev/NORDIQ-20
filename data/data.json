@@ -151,10 +151,15 @@
       "date": "2026-06-29",
       "pr": 967.4809609495478,
       "tr": 970.7445690260156
+    },
+    {
+      "date": "2026-06-30",
+      "pr": 968.4188685872797,
+      "tr": 971.6856405119936
     }
   ],
   "meta": {
-    "updatedAt": "2026-06-29T21:58:22.196Z",
+    "updatedAt": "2026-06-30T22:01:15.481Z",
     "source": "yahoo-finance2 (source non officielle, à titre éducatif uniquement)"
   },
   "prices": {
@@ -598,6 +603,27 @@
       "L.TO": 65.93,
       "QBR-B.TO": 66.28,
       "FSV.TO": 199.77
+    },
+    "2026-06-30": {
+      "FFH.TO": 2332.22,
+      "NA.TO": 220.8,
+      "BN.TO": 59.85,
+      "MFC.TO": 57.81,
+      "IFC.TO": 292.5,
+      "K.TO": 33.74,
+      "LUG.TO": 76.78,
+      "AGI.TO": 43.68,
+      "CNQ.TO": 55.89,
+      "IMO.TO": 160.69,
+      "HPS-A.TO": 338.49,
+      "TVK.TO": 113.09,
+      "CLS.TO": 487.25,
+      "MDA.TO": 54.01,
+      "H.TO": 58.99,
+      "DOL.TO": 191.22,
+      "L.TO": 64.59,
+      "QBR-B.TO": 67.81,
+      "FSV.TO": 201.53
     }
   },
   "constituents": [
